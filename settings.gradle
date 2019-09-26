@@ -1,0 +1,2 @@
+include ':app', ':library_projects:zbar', ':library_projects:BarcodescannerCore'
+

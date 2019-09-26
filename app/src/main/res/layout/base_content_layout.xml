@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.vone.weibaoshuiguo.widget.MyLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/allLayout"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/statusBar"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#2575CB"
+        />
+    <LinearLayout
+        android:id="@+id/actionBar"
+        android:layout_width="match_parent"
+        android:layout_height="58dip"
+        android:orientation="horizontal"
+        android:background="#2575CB">
+
+        <LinearLayout
+            android:id="@+id/backLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:padding="10dp">
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:src="@drawable/icon_back"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/left2Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:padding="10dp">
+            <ImageView
+                android:id="@+id/left2Image"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/shuaxin"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/left3Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:padding="10dp">
+            <ImageView
+                android:id="@+id/left3Image"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/icon_saomiao"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="#fff"
+            android:layout_marginLeft="10dp"
+            android:textSize="18sp"
+            android:singleLine="true"
+            android:layout_marginRight="10dp"
+            android:ellipsize="end"
+            android:text="@string/app_name"/>
+        <LinearLayout
+            android:id="@+id/rightLeftLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:padding="10dp">
+            <ImageView
+                android:id="@+id/rightLeftImage"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/shouye"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rightLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:padding="10dp">
+            <ImageView
+                android:id="@+id/rightImage"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/icon_caidan"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/contentView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</com.vone.weibaoshuiguo.widget.MyLinearLayout>

@@ -1,0 +1,9 @@
+me.dm7.barcodescanner.core
+color viewfinder_border
+color viewfinder_laser
+color viewfinder_mask
+id camera_preview
+id view_finder_view
+integer viewfinder_border_length
+integer viewfinder_border_width
+layout merge_camera_preview_view_finder

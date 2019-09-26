@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/note"
+        android:icon="@mipmap/ic_launcher"
+        android:title="记事本(本地储存 可导出)"/>
+    <item
+        android:id="@+id/clearCache"
+        android:icon="@mipmap/ic_launcher"
+        android:title="清除缓存"/>
+
+    <item
+        android:id="@+id/checkUpdate"
+        android:icon="@mipmap/ic_launcher"
+        android:title="检测升级"/>
+
+    <item
+        android:id="@+id/changeColor"
+        android:icon="@mipmap/ic_launcher"
+        android:title="更换主题"/>
+
+    <item
+        android:id="@+id/phone"
+        android:icon="@mipmap/ic_launcher"
+        android:title="免费电话(各种免费资源)"/>
+
+    <item
+        android:id="@+id/fenxiangzhuanqian"
+        android:icon="@mipmap/ic_launcher"
+        android:title="分享赚钱(发广告、点击赚钱)"/>
+    <item
+        android:id="@+id/liuyan"
+        android:icon="@mipmap/ic_launcher"
+        android:title="留言互动"/>
+    <item
+        android:id="@+id/caidan1"
+        android:icon="@mipmap/ic_launcher"
+        android:visible="false"
+        android:title="默认菜单"/>
+    <item
+        android:id="@+id/caidan2"
+        android:icon="@mipmap/ic_launcher"
+        android:visible="false"
+        android:title="默认菜单"/>
+    <item
+        android:id="@+id/caidan3"
+        android:icon="@mipmap/ic_launcher"
+        android:visible="false"
+        android:title="默认菜单"/>
+    <item
+        android:id="@+id/caidan4"
+        android:icon="@mipmap/ic_launcher"
+        android:visible="false"
+        android:title="默认菜单"/>
+    <item
+        android:id="@+id/caidan5"
+        android:icon="@mipmap/ic_launcher"
+        android:visible="false"
+        android:title="默认菜单"/>
+</menu>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#333333"
+        android:text="更新中.."
+        android:textStyle="bold"
+        android:textSize="16sp"/>
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#333333"
+        android:layout_marginTop="10dp"
+        android:text="正在更新，保存位置为："
+        android:textSize="16sp"/>
+    <com.white.progressview.HorizontalProgressView
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:progress="100"
+        app:progressReachColor="@color/colorPrimary"
+        app:progressTextColor="@color/colorPrimary"
+        app:progressTextVisible="true"
+        />
+    <TextView
+        android:id="@+id/saveTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#666666"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"
+        android:text="保存位置为：倒萨的猫大送到默哀沙漠的吗科萨马杜拉莫斯"
+        android:textSize="12sp"/>
+</LinearLayout>

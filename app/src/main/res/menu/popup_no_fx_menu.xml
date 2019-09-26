@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/backToHome"
+        android:icon="@mipmap/ic_launcher"
+        android:title="主页"/>
+    <item
+        android:id="@+id/note"
+        android:icon="@mipmap/ic_launcher"
+        android:title="记事本"/>
+    <item
+        android:id="@+id/sao"
+        android:icon="@mipmap/ic_launcher"
+        android:title="扫码工具"/>
+
+    <item
+        android:id="@+id/clearCache"
+        android:icon="@mipmap/ic_launcher"
+        android:title="清除缓存"/>
+
+
+    <item
+        android:id="@+id/checkUpdate"
+        android:icon="@mipmap/ic_launcher"
+        android:title="检测升级"/>
+
+    <item
+        android:id="@+id/changeColor"
+        android:icon="@mipmap/ic_launcher"
+        android:title="更换主题"/>
+
+    <item
+        android:id="@+id/liuyan"
+        android:icon="@mipmap/ic_launcher"
+        android:title="留言板块"/>
+</menu>
