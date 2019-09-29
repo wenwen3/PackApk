@@ -57,10 +57,10 @@ import static android.content.Context.MODE_PRIVATE;
 public class PackUtils {
 
     /**用户访问的首页地址*/
-    public static final String OPEN_HOME_URL = "http://znhuiyuan.moxka.cn";
+    public static final String OPEN_HOME_URL = "http://www.ams8.net";
 
     /**用户返回到首页的地址*/
-    public static final String BACK_TO_HOME_URL = "http://znhuiyuan.moxka.cn";
+    public static final String BACK_TO_HOME_URL = "http://www.ams8.net";
 
     /**是否需要启动图*/
     public static final boolean ISHAVE_START_IMAGE = true;
@@ -99,7 +99,7 @@ public class PackUtils {
     }
 
     /**唯一标识码*/
-    public static final String ONLY_TAG = "dl6t17a5sl5onsn8xn";
+    public static final String ONLY_TAG = "34w6kpbn9l24s609gk";
 
     /**记事本导出excel接口地址*/
     public String jsbjiekou  = "";

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -31,6 +32,7 @@ import android.webkit.DownloadListener;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -76,9 +78,10 @@ import java.util.UUID;
 /**
  * webView activity
  **/
-public class HomeActivity extends BaseRxDataActivity{
+public class HomeActivity extends BaseRxDataActivity implements View.OnClickListener {
 
     private View rootView;
+    private View emptyView;
     private WebView mWebView;
     private String url = PackUtils.OPEN_HOME_URL;
     private SpinerPopWindow<String> stringSpinerPopWindow;
@@ -249,8 +252,9 @@ public class HomeActivity extends BaseRxDataActivity{
 
         initColor();
         mWebView = rootView.findViewById(R.id.webView);
+        emptyView = rootView.findViewById(R.id.emptyView);
         initWebViewSetting();
-
+        emptyView.setOnClickListener(this);
 
         requestPermiss();
         loadNotify();
@@ -282,7 +286,9 @@ public class HomeActivity extends BaseRxDataActivity{
     }
 
     @Override
-    protected void onClickLeft2Logo(View view) {
+    protected void onClickLeft2Logo(View view)
+    {
+        isError = true;
         mWebView.reload();
     }
 
@@ -949,7 +955,18 @@ public class HomeActivity extends BaseRxDataActivity{
             } else {
                 setTitle(title);
             }
+            // android 6.0 以下通过title获取判断
+//            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+//                if(title != null ) {
+//                    if (title.contains("404") || title.contains("500") || title.contains("Error") || title.contains("找不到网页") || title.contains("网页无法打开")) {
+//                        isError = true;
+//                        emptyView.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//            }
         }
+
+
 
         @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
@@ -957,6 +974,7 @@ public class HomeActivity extends BaseRxDataActivity{
             selectImage();
             return true;
         }
+
     };
 
     private void selectImage() {
@@ -997,6 +1015,8 @@ public class HomeActivity extends BaseRxDataActivity{
         }
     }
 
+    public boolean isError;
+
     @SuppressLint("SetJavaScriptEnabled")
     private void initWebViewSetting() {
         mWebView.getSettings().setJavaScriptEnabled(true);//让浏览器支持javascript
@@ -1017,6 +1037,40 @@ public class HomeActivity extends BaseRxDataActivity{
                 handler.proceed();// 接受所有网站的证书
                 // handleMessage(Message msg);// 进行其他处理
             }
+//
+//            @Override
+//            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+//                super.onPageStarted(view, url, favicon);
+//                Log.d("xgw","onPageStarted");
+//                isError = false;
+//            }
+//
+//            @Override
+//            public void onPageFinished(WebView view, String url) {
+//                super.onPageFinished(view, url);
+//                Log.d("xgw","onPageFinished");
+//                if(!isError) {
+//                    emptyView.setVisibility(View.GONE);
+//                }
+//            }
+//
+//            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//            @Override
+//            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+//                super.onReceivedHttpError(view, request, errorResponse);
+//                // 这个方法在 android 6.0才出现
+//                isError = true;
+//                Log.d("xgw","onReceivedHttpError");
+//                emptyView.setVisibility(View.VISIBLE);
+//            }
+//
+//            @Override
+//            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+//                super.onReceivedError(view, request, error);
+//                isError = true;
+//                Log.d("xgw","onReceivedError");
+//                emptyView.setVisibility(View.VISIBLE);
+//            }
 
             @Nullable
             @Override
@@ -1140,4 +1194,11 @@ public class HomeActivity extends BaseRxDataActivity{
     }
 
 
+    @Override
+    public void onClick(View v) {
+        if(v == emptyView){
+            isError = true;
+            mWebView.reload();
+        }
+    }
 }
