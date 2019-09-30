@@ -437,8 +437,10 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         }
         if(dhbqx == 1){
             isCanDhbqx = true;
+            PackUtils.getInstance().setCanDhbqx(true);
         }else{
             isCanDhbqx = false;
+            PackUtils.getInstance().setCanDhbqx(false);
         }
         if(jsbjiekou != null && !TextUtils.isEmpty(jsbjiekou)){
             PackUtils.getInstance().setJsbjiekou(jsbjiekou);
@@ -562,6 +564,14 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // 申请权限
             ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},10055);
+        }
+        // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
+        if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // 申请权限
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE},10055);
+        }
+        if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_CALL_LOG},2222);
         }
     }
 

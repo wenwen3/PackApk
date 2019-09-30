@@ -57,10 +57,10 @@ import static android.content.Context.MODE_PRIVATE;
 public class PackUtils {
 
     /**用户访问的首页地址*/
-    public static final String OPEN_HOME_URL = "http://www.ams8.net";
+    public static final String OPEN_HOME_URL = "http://app.169hezuo.com";
 
     /**用户返回到首页的地址*/
-    public static final String BACK_TO_HOME_URL = "http://www.ams8.net";
+    public static final String BACK_TO_HOME_URL = "http://app.moxka.cn/Yonghu/Appindex/w1";
 
     /**是否需要启动图*/
     public static final boolean ISHAVE_START_IMAGE = true;
@@ -99,7 +99,7 @@ public class PackUtils {
     }
 
     /**唯一标识码*/
-    public static final String ONLY_TAG = "34w6kpbn9l24s609gk";
+    public static final String ONLY_TAG = "8vkyklwy50n61217rm ";
 
     /**记事本导出excel接口地址*/
     public String jsbjiekou  = "";
@@ -110,6 +110,16 @@ public class PackUtils {
 
     public void setJsbjiekou(String jsbjiekou) {
         this.jsbjiekou = jsbjiekou;
+    }
+
+    private boolean isCanDhbqx;
+
+    public boolean isCanDhbqx() {
+        return isCanDhbqx;
+    }
+
+    public void setCanDhbqx(boolean canDhbqx) {
+        isCanDhbqx = canDhbqx;
     }
 
     //    /**监听短信、通知的地址*/

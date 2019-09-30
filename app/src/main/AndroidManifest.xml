@@ -18,6 +18,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"></uses-permission>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon_logo"
@@ -52,6 +57,17 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name="com.vone.weibaoshuiguo.receiver.PhoneReceiver">
+
+            <intent-filter>
+
+                <action android:name="android.intent.action.PHONE_STATE"/>
+
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+
+            </intent-filter>
+
+        </receiver>
         <activity
             android:name="com.vone.weibaoshuiguo.CaptureActivity"
             android:screenOrientation="portrait"/>
@@ -65,7 +81,7 @@
             android:screenOrientation="portrait"/>
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.vone.packApk.ams"
+            android:authorities="com.vone.packApk.packyanshi"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

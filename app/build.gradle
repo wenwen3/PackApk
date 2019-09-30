@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion '28.0.2'
     defaultConfig {
-        applicationId "com.vone.ams"
+        applicationId "com.vone.packyanshi"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
