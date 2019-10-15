@@ -59,10 +59,10 @@ import static android.content.Context.MODE_PRIVATE;
 public class PackUtils {
 
     /**用户访问的首页地址*/
-    public static final String OPEN_HOME_URL = "http://u.sanlueonline.com/";
+    public static final String OPEN_HOME_URL = "http://pao.716323.com/";
 
     /**用户返回到首页的地址*/
-    public static final String BACK_TO_HOME_URL = "http://u.sanlueonline.com/";
+    public static final String BACK_TO_HOME_URL = "http://pao.716323.com/";
 
     /**是否需要启动图*/
     public static final boolean ISHAVE_START_IMAGE = true;
@@ -104,7 +104,7 @@ public class PackUtils {
     }
 
     /**唯一标识码*/
-    public static final String ONLY_TAG = "1b6pborriglmufoavb ";
+    public static final String ONLY_TAG = "d37u9g84nweao1xpjg ";
 
     /**记事本导出excel接口地址*/
     public String jsbjiekou  = "";

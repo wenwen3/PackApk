@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.vone.xingzhifu"
+        applicationId "com.vone.benchi"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
