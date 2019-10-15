@@ -109,6 +109,21 @@
                 android:paddingRight="7dp"
                 android:background="#E03333"
                 android:text="清空"/>
+            <TextView
+                android:id="@+id/bindDevice"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:padding="15dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="#fff"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:paddingLeft="7dp"
+                android:paddingRight="7dp"
+                android:background="#1BA77B"
+                android:text="设备绑定"/>
 
         </LinearLayout>
         </LinearLayout>

@@ -56,7 +56,10 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.vone.qrcode.R;
 import com.vone.weibaoshuiguo.base.BaseRxDataActivity;
 import com.vone.weibaoshuiguo.bean.ContactRecord;
+import com.vone.weibaoshuiguo.bean.JsonProtocol;
 import com.vone.weibaoshuiguo.bean.MyContacts;
+import com.vone.weibaoshuiguo.service.PlayingMusicServices;
+import com.vone.weibaoshuiguo.util.BroadCastUtils;
 import com.vone.weibaoshuiguo.util.Constant;
 import com.vone.weibaoshuiguo.util.DateFormatUtils;
 import com.vone.weibaoshuiguo.util.DialogUtils;
@@ -78,7 +81,7 @@ import java.util.UUID;
 /**
  * webView activity
  **/
-public class HomeActivity extends BaseRxDataActivity implements View.OnClickListener {
+public class HomeActivity extends BaseRxDataActivity implements View.OnClickListener, BroadCastUtils.OnBroadCastListener {
 
     private View rootView;
     private View emptyView;
@@ -247,6 +250,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
     private List<String> mColorList = new ArrayList<>();
     private Map<String,Integer> mColorMaps = new HashMap<>();
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     protected void onActivityPrepared() {
 
@@ -258,6 +262,8 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
         requestPermiss();
         loadNotify();
+
+        BroadCastUtils.getInstance().addBroadCastListener(this);
 
         a();
         mWebView.setDownloadListener(new DownloadListener() {
@@ -313,7 +319,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
             DialogUtils.getInstance().showShouldUseDialog(HomeActivity.this,null,xinxi);
             return;
         }
-        loadUrl(zyjiekou);
+        loadUrl(zyjiekou+"?yhm="+yhm);
     }
 
     private boolean isCanDhbqx = false;
@@ -354,7 +360,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                     sqResult(response);
                 }else{
                     isCanUse = true;
-                    loadUrl(url);
+                    loadUrl(url+"?yhm="+yhm);
                 }
             }
         });
@@ -454,7 +460,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
             DialogUtils.getInstance().showShouldUseDialog(HomeActivity.this,null,xinxi);
         }else{
             isCanUse = true;
-            loadUrl(url);
+            loadUrl(url+"?yhm="+yhm);
         }
     }
     private int caidansq01;
@@ -727,7 +733,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                     JSONObject jsonObject = JSON.parseObject(responseInfo.result);
                     if( jsonObject != null ) {
                         String url = jsonObject.getString("url");
-                        loadUrl(url);
+                        loadUrl(url+"?yhm="+yhm);
                     }
                 }
 
@@ -742,9 +748,9 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     public void loadUrl(String url){
         if(PackUtils.getInstance().getUrlqx() == 1){
             if(url.contains("?")) {
-                mWebView.loadUrl(url+"&appwjh168abc=jkfhi&biaoshi="+PackUtils.ONLY_TAG);
+                mWebView.loadUrl(url+"&appwjh168abc=jkfhi&biaoshi="+PackUtils.ONLY_TAG+"&suijiyhm="+yhm);
             }else{
-                mWebView.loadUrl(url+"?appwjh168abc=jkfhi&biaoshi="+PackUtils.ONLY_TAG);
+                mWebView.loadUrl(url+"?appwjh168abc=jkfhi&biaoshi="+PackUtils.ONLY_TAG+"&suijiyhm="+yhm);
             }
         }else{
             mWebView.loadUrl(url);
@@ -1001,10 +1007,8 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         if (isDestroyed()) {
             return;
         }
-        if (mWebView != null) {
-            mWebView.destroy();
-            mWebView = null;
-        }
+
+
     }
     //声明一个long类型变量：用于存放上一点击“返回键”的时刻
     private long mExitTime;
@@ -1020,6 +1024,8 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                 //并记录下本次点击“返回键”的时刻，以便下次进行判断
                 mExitTime = System.currentTimeMillis();
             } else {
+                Intent intent = new Intent(this, PlayingMusicServices.class);
+                stopService(intent);
                 finish();
             }
         }
@@ -1027,7 +1033,8 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
     public boolean isError;
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     private void initWebViewSetting() {
         mWebView.getSettings().setJavaScriptEnabled(true);//让浏览器支持javascript
         mWebView.getSettings().setSupportZoom(true);//是否可以缩放，默认是true
@@ -1037,7 +1044,9 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         mWebView.getSettings().setDomStorageEnabled(true);//DOM Storage
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);  //设置 缓存模式
         mWebView.getSettings().setPluginState(WebSettings.PluginState.ON); //播放视频
+        mWebView.getSettings().setMediaPlaybackRequiresUserGesture(true);
         mWebView.setWebChromeClient(webChromeClient);
+        mWebView.addJavascriptInterface(new MyJsInterface(HomeActivity.this),"pack");
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedSslError(WebView view,
@@ -1165,26 +1174,26 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                         }
                     }
                 }
-                if(jsonObject.containsKey("jtpz")) {
+                if(jsonObject.containsKey("jtpz") && jsonObject.get("jtpz") != null ) {
                     int jtpz = jsonObject.getInteger("jtpz");
                     if(jtpz == 1) {
                         SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_PRIVATE).edit();
-                        if (jsonObject.containsKey("hywz")) {
+                        if (jsonObject.containsKey("hywz")&& jsonObject.get("hywz") != null ) {
                             String hywz = jsonObject.getString("hywz");
                             editor.putString(StaticInfo.WZ, hywz);
                             wz = hywz;
                         }
-                        if (jsonObject.containsKey("jtwz")) {
+                        if (jsonObject.containsKey("jtwz")&& jsonObject.get("jtwz") != null ) {
                             String jtwz = jsonObject.getString("jtwz");
                             editor.putString(StaticInfo.HOST, jtwz);
                             host = jtwz;
                         }
-                        if (jsonObject.containsKey("yhm")) {
+                        if (jsonObject.containsKey("yhm")&& jsonObject.get("yhm") != null ) {
                             String yhmString = jsonObject.getString("yhm");
                             editor.putString(StaticInfo.YHM, yhmString);
                             yhm = yhmString;
                         }
-                        if (jsonObject.containsKey("key")) {
+                        if (jsonObject.containsKey("key")&& jsonObject.get("key") != null ) {
                             String keyString = jsonObject.getString("key");
                             editor.putString(StaticInfo.KEY, keyString);
                             key = keyString;
@@ -1209,6 +1218,18 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         if(v == emptyView){
             isError = true;
             mWebView.reload();
+        }
+    }
+
+    @Override
+    public void onReceiver(JsonProtocol protocol) {
+        if(protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_REFRESH)){
+            //读入保存的配置数据并显示
+            SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
+            host = read.getString(StaticInfo.HOST, "");
+            yhm = read.getString(StaticInfo.YHM, "");
+            wz = read.getString(StaticInfo.WZ, "");
+            key = read.getString(StaticInfo.KEY, "");
         }
     }
 }

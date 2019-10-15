@@ -1,27 +1,27 @@
 -- Merging decision tree log ---
 manifest
-ADDED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:1-5:12
-INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:1-5:12
-INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:1-5:12
+ADDED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:1-5:12
+INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:1-5:12
+INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:1-5:12
 	package
-		ADDED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:70-106
-		INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-		INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		ADDED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:70-106
+		INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
 	xmlns:android
-		ADDED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:11-69
+		ADDED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:3:11-69
 application
-ADDED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:4:5-32
+ADDED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml:4:5-32
 uses-sdk
-INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
 	android:targetSdkVersion
-		INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-		ADDED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-		INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		ADDED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-		ADDED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
-		INJECTED from E:\weibaojianting\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		ADDED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml
+		INJECTED from D:\xgw\PackApk\library_projects\BarcodescannerCore\src\main\AndroidManifest.xml

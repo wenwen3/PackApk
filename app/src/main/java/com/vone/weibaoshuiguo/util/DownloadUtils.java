@@ -196,7 +196,7 @@ public class DownloadUtils {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Uri uri = FileProvider.getUriForFile(context,"com.vone.packApk.packyanshi",new File(downloadApk));
+            Uri uri = FileProvider.getUriForFile(context,"com.vone.packApk.xingzhifu",new File(downloadApk));
             intent.setDataAndType(uri,"application/vnd.android.package-archive");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         } else {

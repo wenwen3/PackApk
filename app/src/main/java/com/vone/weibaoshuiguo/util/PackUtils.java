@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -36,6 +37,7 @@ import com.vone.qrcode.R;
 import com.vone.weibaoshuiguo.StaticInfo;
 import com.vone.weibaoshuiguo.bean.ContactRecord;
 import com.vone.weibaoshuiguo.bean.MyContacts;
+import com.vone.weibaoshuiguo.service.PlayingMusicServices;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,16 +59,19 @@ import static android.content.Context.MODE_PRIVATE;
 public class PackUtils {
 
     /**用户访问的首页地址*/
-    public static final String OPEN_HOME_URL = "http://app.169hezuo.com";
+    public static final String OPEN_HOME_URL = "http://u.sanlueonline.com/";
 
     /**用户返回到首页的地址*/
-    public static final String BACK_TO_HOME_URL = "http://app.moxka.cn/Yonghu/Appindex/w1";
+    public static final String BACK_TO_HOME_URL = "http://u.sanlueonline.com/";
 
     /**是否需要启动图*/
     public static final boolean ISHAVE_START_IMAGE = true;
 
     /**启动图url*/
     public static final int START_URL = R.drawable.icon_start_logo;
+
+    public static final int TYPE_PLAY_AUDIO = 1;
+    public static final int TYPE_STOP_AUDIO = 2;
 
     public int urlqx;
     public int pbggsq;
@@ -99,7 +104,7 @@ public class PackUtils {
     }
 
     /**唯一标识码*/
-    public static final String ONLY_TAG = "8vkyklwy50n61217rm ";
+    public static final String ONLY_TAG = "1b6pborriglmufoavb ";
 
     /**记事本导出excel接口地址*/
     public String jsbjiekou  = "";
@@ -520,4 +525,27 @@ public class PackUtils {
         return "02:00:00:00:00:00";
     }
 
+    public void playAudio(Context context,String url){
+        if(url == null || TextUtils.isEmpty(url)){
+            //启动服务，播放音乐
+            Intent intent=new Intent(context, PlayingMusicServices.class);
+            intent.putExtra("type",TYPE_PLAY_AUDIO);
+            intent.putExtra("url","");
+            context.startService(intent);
+        }else{
+            //启动服务，播放音乐
+            Intent intent=new Intent(context, PlayingMusicServices.class);
+            intent.putExtra("type",TYPE_PLAY_AUDIO);
+            intent.putExtra("url",url);
+            context.startService(intent);
+        }
+    }
+
+    public void stopAudio(Context context){
+            //启动服务，播放音乐
+            Intent intent=new Intent(context, PlayingMusicServices.class);
+            intent.putExtra("type",TYPE_STOP_AUDIO);
+            intent.putExtra("url","");
+            context.startService(intent);
+    }
 }

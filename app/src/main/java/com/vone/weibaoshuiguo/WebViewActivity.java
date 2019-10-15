@@ -211,6 +211,7 @@ public class WebViewActivity extends BaseRxDataActivity implements View.OnClickL
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);  //设置 缓存模式
         mWebView.getSettings().setPluginState(WebSettings.PluginState.ON); //播放视频
         mWebView.setWebChromeClient(webChromeClient);
+        mWebView.addJavascriptInterface(new MyJsInterface(WebViewActivity.this),"pack");
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedSslError(WebView view,
