@@ -1,9 +1,12 @@
 package com.vone.weibaoshuiguo;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,6 +30,8 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,16 +75,17 @@ public class NeNotificationService2  extends NotificationListenerService {
 
     private int nextNum = 30;
     //心跳进程
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void initAppHeart(){
         Log.d(TAG, "开始启动心跳线程");
         if (newThread!=null){
             return;
         }
         acquireWakeLock(this);
-
     }
 
     //当收到一条消息的时候回调，sbn是收到的消息
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
@@ -115,7 +121,6 @@ public class NeNotificationService2  extends NotificationListenerService {
                             appPushNotify(title,content,pkg);
                         }
                     }
-
                 }else if(pkg.equals("com.tencent.mm")){
 
                     if (content!=null && !content.equals("")){
@@ -150,12 +155,15 @@ public class NeNotificationService2  extends NotificationListenerService {
         }
 
     }
+
+
     //当移除一条消息的时候回调，sbn是被移除的消息
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
 
     }
     //当连接成功时调用，一般在开启监听后会回调一次该方法
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onListenerConnected() {
         //开启心跳线程

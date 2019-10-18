@@ -1,13 +1,18 @@
 package com.vone.weibaoshuiguo;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.media.projection.MediaProjectionManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.lidroid.xutils.DbUtils;
 import com.lidroid.xutils.exception.DbException;
 import com.vone.weibaoshuiguo.bean.Notepad;
+
 
 public class WbApplication extends Application {
 
@@ -28,7 +33,7 @@ public class WbApplication extends Application {
         super.onCreate();
         instance = this;
         CrashHandler.getInstance().init(this);
-
+        manager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         dbUtils = DbUtils.create(this, "pack", 1, new DbUtils.DbUpgradeListener() {
             @Override
             public void onUpgrade(DbUtils dbUtils, int i, int i1) {
@@ -40,6 +45,22 @@ public class WbApplication extends Application {
                 }
             }
         });
+    }
+
+    public  MediaProjectionManager manager;
+
+    public MediaProjectionManager getManager() {
+        return manager;
+    }
+
+    Activity activity;
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
     }
 
     public static String getVersion(Context context)//获取版本号
