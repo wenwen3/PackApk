@@ -170,7 +170,7 @@ public class NotesListActivity extends BaseRxDataActivity implements View.OnClic
     private SpinerPopWindow stringSpinerPopWindow;
 
     private void showPopupWindow(final Notepad item) {
-        stringSpinerPopWindow = new SpinerPopWindow<>(NotesListActivity.this, mLongClick, new AdapterView.OnItemClickListener() {
+        stringSpinerPopWindow = new SpinerPopWindow<>(NotesListActivity.this, mLongClick,true, new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 stringSpinerPopWindow.dismiss();
@@ -194,15 +194,24 @@ public class NotesListActivity extends BaseRxDataActivity implements View.OnClic
         stringSpinerPopWindow.showAtLocation(rootView, Gravity.CENTER, 0, 0);
     }
 
-    private void deleteItem(int id) {
+    private void deleteItem(final int id) {
+        DialogUtils.getInstance().showMessageDialog(this, new DialogUtils.OnShouldUseListener() {
+            @Override
+            public void onShouldUse() {
+                deleteItemSync(id);
+            }
+        },"将删除这条内容，请确认！");
+    }
+
+    private void deleteItemSync(int id){
         try {
             WbApplication.getInstance().getDbUtils().delete(Notepad.class, WhereBuilder.b("id", "=", id));
-            Toast.makeText(this, "已删除", Toast.LENGTH_SHORT).show();
+            Toast.makeText(NotesListActivity.this, "已删除", Toast.LENGTH_SHORT).show();
             refreshLayout.setRefreshing(true);
             initNotes(true);
         } catch (DbException e) {
             e.printStackTrace();
-            Toast.makeText(this, "删除失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(NotesListActivity.this, "删除失败", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -341,15 +350,20 @@ public class NotesListActivity extends BaseRxDataActivity implements View.OnClic
             });
 
         } else if (v == clear) {
-            try {
-                WbApplication.getInstance().getDbUtils().deleteAll(Notepad.class);
-                Toast.makeText(this, "已清空", Toast.LENGTH_SHORT).show();
-                refreshLayout.setRefreshing(true);
-                initNotes(true);
-            } catch (DbException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "清空失败", Toast.LENGTH_SHORT).show();
-            }
+            DialogUtils.getInstance().showMessageDialog(this, new DialogUtils.OnShouldUseListener() {
+                @Override
+                public void onShouldUse() {
+                    try {
+                        WbApplication.getInstance().getDbUtils().deleteAll(Notepad.class);
+                        Toast.makeText(NotesListActivity.this, "已清空", Toast.LENGTH_SHORT).show();
+                        refreshLayout.setRefreshing(true);
+                        initNotes(true);
+                    } catch (DbException e) {
+                        e.printStackTrace();
+                        Toast.makeText(NotesListActivity.this, "清空失败", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            },"将清空所有内容，请确认！");
         } else if (v == addNotes) {
             CreateNotesActivity.showActivity(this, null);
         } else if (v == bindDevice) {

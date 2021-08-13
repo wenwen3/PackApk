@@ -10,21 +10,31 @@ import android.content.Context;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
+import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.vone.weibaoshuiguo.StaticInfo;
 import com.vone.weibaoshuiguo.WbApplication;
 import com.vone.weibaoshuiguo.util.PackUtils;
 import com.vone.weibaoshuiguo.util.RequestUtils;
-
+import com.android.internal.telephony.ITelephony;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 public class PhoneReceiver extends BroadcastReceiver {
+    TelephonyManager tm;
 
     @Override
-
     public void onReceive(Context context, Intent intent) {
 
 
@@ -52,7 +62,7 @@ public class PhoneReceiver extends BroadcastReceiver {
  * 第三步：通过extends PhoneStateListener来定制自己的规则。将其对象传递给第二步作为参数。
  * 第四步：这一步很重要，那就是给应用添加权限。android.permission.READ_PHONE_STATE
  */
-                TelephonyManager tm = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);
+                tm = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);
 
                 tm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
 
@@ -91,15 +101,56 @@ public class PhoneReceiver extends BroadcastReceiver {
                     if(!PackUtils.getInstance().isCanDhbqx()){
                         return;
                     }
-                    SharedPreferences read = WbApplication.getInstance().getSharedPreferences("vone", Activity.MODE_PRIVATE);
-                    String  wz = read.getString(StaticInfo.WZ, "");
-                    String yhm = read.getString(StaticInfo.YHM, "");
-                    HashMap<String, String> stringStringHashMap = new HashMap<>();
-                    stringStringHashMap.put("data",incomingNumber);
-                    stringStringHashMap.put("leixing","laidian");
-                    stringStringHashMap.put("yhm",yhm);
-                    stringStringHashMap.put("biaoshi",PackUtils.ONLY_TAG);
-                    RequestUtils.getInstance().request(stringStringHashMap,wz,null);
+                    Log.d("xgw","incomingNumber"+incomingNumber+"_---size:"+PackUtils.getInstance().getStatusMap().size());
+                    if(PackUtils.getInstance().getStatusMap().containsKey(incomingNumber)){
+                        long l = System.currentTimeMillis();
+                        long aLong = PackUtils.getInstance().getStatusMap().get(incomingNumber);
+                        Log.d("xgw","l:"+l+"----along:"+aLong);
+                        if(l > aLong && l - aLong> 3000){
+                            SharedPreferences read = WbApplication.getInstance().getSharedPreferences("vone", Activity.MODE_PRIVATE);
+                            String wz = read.getString(StaticInfo.WZ, "");
+                            String yhm = read.getString(StaticInfo.YHM, "");
+                            HashMap<String, String> stringStringHashMap = new HashMap<>();
+                            stringStringHashMap.put("data", incomingNumber);
+                            stringStringHashMap.put("leixing", "laidian");
+                            stringStringHashMap.put("yhm", yhm);
+                            stringStringHashMap.put("biaoshi", PackUtils.ONLY_TAG);
+                            RequestUtils.getInstance().request(stringStringHashMap, wz, new RequestCallBack<String>() {
+                                @Override
+                                public void onSuccess(ResponseInfo<String> responseInfo) {
+                                    if(responseInfo.result != null && !TextUtils.isEmpty(responseInfo.result)){
+                                        JSONObject jsonObject = JSON.parseObject(responseInfo.result);
+                                        if(jsonObject.containsKey("code") && jsonObject.get("code") != null){
+                                            if(jsonObject.getInteger("code") == 1){
+                                                if(PackUtils.getInstance().getLaidiankg() == 1) {
+                                                    endCall();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(HttpException e, String s) {
+
+                                }
+                            });
+                            PackUtils.getInstance().getStatusMap().put(incomingNumber, l);
+                            Log.d("xgw","发送===");
+                        }
+                    }else {
+                        SharedPreferences read = WbApplication.getInstance().getSharedPreferences("vone", Activity.MODE_PRIVATE);
+                        String wz = read.getString(StaticInfo.WZ, "");
+                        String yhm = read.getString(StaticInfo.YHM, "");
+                        HashMap<String, String> stringStringHashMap = new HashMap<>();
+                        stringStringHashMap.put("data", incomingNumber);
+                        stringStringHashMap.put("leixing", "laidian");
+                        stringStringHashMap.put("yhm", yhm);
+                        stringStringHashMap.put("biaoshi", PackUtils.ONLY_TAG);
+                        RequestUtils.getInstance().request(stringStringHashMap, wz, null);
+                        PackUtils.getInstance().getStatusMap().put(incomingNumber, System.currentTimeMillis());
+                        Log.d("xgw","发送");
+                    }
                     break;
 
             }
@@ -107,5 +158,24 @@ public class PhoneReceiver extends BroadcastReceiver {
         }
 
     };
-
+    /**
+     * 挂断电话
+     */
+    private void endCall()
+    {
+        Class<TelephonyManager> c = TelephonyManager.class;
+        try
+        {
+            Method getITelephonyMethod = c.getDeclaredMethod("getITelephony", (Class[]) null);
+            getITelephonyMethod.setAccessible(true);
+            ITelephony iTelephony = null;
+            Log.d("xgw", "End call.");
+            iTelephony = (ITelephony) getITelephonyMethod.invoke(tm, (Object[]) null);
+            iTelephony.endCall();
+        }
+        catch (Exception e)
+        {
+            Log.d("xgw", "error: " +e.getMessage());
+        }
+    }
 }

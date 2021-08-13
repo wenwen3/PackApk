@@ -2,16 +2,27 @@ package com.vone.weibaoshuiguo;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
+import android.media.Image;
+import android.media.ImageReader;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,6 +33,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.PopupMenu;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -58,6 +70,8 @@ import com.vone.weibaoshuiguo.base.BaseRxDataActivity;
 import com.vone.weibaoshuiguo.bean.ContactRecord;
 import com.vone.weibaoshuiguo.bean.JsonProtocol;
 import com.vone.weibaoshuiguo.bean.MyContacts;
+import com.vone.weibaoshuiguo.bean.Notepad;
+import com.vone.weibaoshuiguo.service.HeartService;
 import com.vone.weibaoshuiguo.service.PlayingMusicServices;
 import com.vone.weibaoshuiguo.util.BroadCastUtils;
 import com.vone.weibaoshuiguo.util.Constant;
@@ -71,11 +85,18 @@ import com.vone.weibaoshuiguo.util.SpinerPopWindow;
 import com.vone.weibaoshuiguo.util.UpdateUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 /**
@@ -88,12 +109,14 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     private WebView mWebView;
     private String url = PackUtils.OPEN_HOME_URL;
     private SpinerPopWindow<String> stringSpinerPopWindow;
+    private String shouye;
+    private String fenxiangdizhi;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onClickRightLogo(View v) {
-        showPopupMenu(v);
+//        showPopupMenu(v);
     }
 
     @Override
@@ -107,40 +130,49 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         PopupMenu popupMenu = new PopupMenu(HomeActivity.this, view);
         // 获取布局文件
         popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
-        if(!isLyhdcd){
+        if (!isLyhdcd) {
             popupMenu.getMenu().findItem(R.id.liuyan).setVisible(false);
         }
-        if(!isCdqx){
+        if (!isCdqx) {
             popupMenu.getMenu().findItem(R.id.fenxiangzhuanqian).setVisible(false);
         }
-        if(!isMfdhcd){
+        if (!isMfdhcd) {
             popupMenu.getMenu().findItem(R.id.phone).setVisible(false);
         }
 
-        if(caidansq01 == 1 && caidanming01 != null && !TextUtils.isEmpty(caidanming01)
-                            &&caidanwz01 != null && !TextUtils.isEmpty(caidanwz01)){
+        if (caidansq01 == 1 && caidanming01 != null && !TextUtils.isEmpty(caidanming01)
+                && caidanwz01 != null && !TextUtils.isEmpty(caidanwz01)) {
             popupMenu.getMenu().findItem(R.id.caidan1).setVisible(true);
             popupMenu.getMenu().findItem(R.id.caidan1).setTitle(caidanming01);
         }
-        if(caidansq02 == 1 && caidanming02 != null && !TextUtils.isEmpty(caidanming02)
-                            &&caidanwz02 != null && !TextUtils.isEmpty(caidanwz02)){
+        if (caidansq02 == 1 && caidanming02 != null && !TextUtils.isEmpty(caidanming02)
+                && caidanwz02 != null && !TextUtils.isEmpty(caidanwz02)) {
             popupMenu.getMenu().findItem(R.id.caidan2).setVisible(true);
             popupMenu.getMenu().findItem(R.id.caidan2).setTitle(caidanming02);
         }
-        if(caidansq03 == 1 && caidanming03 != null && !TextUtils.isEmpty(caidanming03)
-                            &&caidanwz03 != null && !TextUtils.isEmpty(caidanwz03)){
+        if (caidansq03 == 1 && caidanming03 != null && !TextUtils.isEmpty(caidanming03)
+                && caidanwz03 != null && !TextUtils.isEmpty(caidanwz03)) {
             popupMenu.getMenu().findItem(R.id.caidan3).setVisible(true);
             popupMenu.getMenu().findItem(R.id.caidan3).setTitle(caidanming03);
         }
-        if(caidansq04 == 1 && caidanming04 != null && !TextUtils.isEmpty(caidanming04)
-                            &&caidanwz04 != null && !TextUtils.isEmpty(caidanwz04)){
+        if (caidansq04 == 1 && caidanming04 != null && !TextUtils.isEmpty(caidanming04)
+                && caidanwz04 != null && !TextUtils.isEmpty(caidanwz04)) {
             popupMenu.getMenu().findItem(R.id.caidan4).setVisible(true);
             popupMenu.getMenu().findItem(R.id.caidan4).setTitle(caidanming04);
         }
-        if(caidansq05 == 1 && caidanming05 != null && !TextUtils.isEmpty(caidanming05)
-                            &&caidanwz05 != null && !TextUtils.isEmpty(caidanwz05)){
+        if (caidansq05 == 1 && caidanming05 != null && !TextUtils.isEmpty(caidanming05)
+                && caidanwz05 != null && !TextUtils.isEmpty(caidanwz05)) {
             popupMenu.getMenu().findItem(R.id.caidan5).setVisible(true);
             popupMenu.getMenu().findItem(R.id.caidan5).setTitle(caidanming05);
+        }
+        if (mfdh != null && !TextUtils.isEmpty(mfdh)) {
+            popupMenu.getMenu().findItem(R.id.phone).setTitle(mfdh);
+        }
+        if (lyhd != null && !TextUtils.isEmpty(lyhd)) {
+            popupMenu.getMenu().findItem(R.id.liuyan).setTitle(lyhd);
+        }
+        if (fxzq != null && !TextUtils.isEmpty(fxzq)) {
+            popupMenu.getMenu().findItem(R.id.fenxiangzhuanqian).setTitle(fxzq);
         }
         popupMenu.show();
         // 通过上面这几行代码，就可以把控件显示出来了
@@ -158,13 +190,13 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                         public void run() {
                             mWebView.reload();
                         }
-                    },500);
-                }  else if (item.getItemId() == R.id.checkUpdate) {
-                    checkUpdate(HomeActivity.this,true);
+                    }, 500);
+                } else if (item.getItemId() == R.id.checkUpdate) {
+                    checkUpdate(HomeActivity.this, true);
                 } else if (item.getItemId() == R.id.note) {
                     NotesListActivity.showActivity(HomeActivity.this);
-                }else if (item.getItemId() == R.id.changeColor) {
-                    stringSpinerPopWindow = new SpinerPopWindow<>(HomeActivity.this, mColorList, new AdapterView.OnItemClickListener() {
+                } else if (item.getItemId() == R.id.changeColor) {
+                    stringSpinerPopWindow = new SpinerPopWindow<>(HomeActivity.this, mColorList,true, new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             stringSpinerPopWindow.dismiss();
@@ -187,46 +219,36 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                     });
                     stringSpinerPopWindow.setWidth(800);
                     stringSpinerPopWindow.setHeight(700);
-                    stringSpinerPopWindow.showAtLocation(rootView, Gravity.CENTER,0,0);
-                }else if(item.getItemId() == R.id.fenxiangzhuanqian){
-                    if(fxzqjiekou != null && !TextUtils.isEmpty(fxzqjiekou)){
-                        loadUrl(fxzqjiekou+"?yhm="+yhm);
-                    }else{
+                    stringSpinerPopWindow.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+                } else if (item.getItemId() == R.id.fenxiangzhuanqian) {
+                    if (fxzqjiekou != null && !TextUtils.isEmpty(fxzqjiekou)) {
+                        loadUrl(fxzqjiekou + "?yhm=" + yhm);
+                    } else {
                         Toast.makeText(HomeActivity.this, "授权失败..", Toast.LENGTH_SHORT).show();
                     }
-                }else if(item.getItemId() == R.id.liuyan){
-                    if(lyjiekou != null && !TextUtils.isEmpty(lyjiekou)){
-                        loadUrl(lyjiekou+"?yhm="+yhm);
-                    }else{
+                } else if (item.getItemId() == R.id.liuyan) {
+                    if (lyjiekou != null && !TextUtils.isEmpty(lyjiekou)) {
+                        loadUrl(lyjiekou + "?yhm=" + yhm);
+                    } else {
                         Toast.makeText(HomeActivity.this, "授权失败..", Toast.LENGTH_SHORT).show();
                     }
-                }else if(item.getItemId() == R.id.phone){
-                    // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
-                    if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                        // 申请权限
-                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, Constant.REQ_READ_CONTACTS);
-                    }
-                    if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-                        sendContacts();
-                    }
-                    if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED) {
-                        sendContactsRecord();
-                    }
-                    if(mfdhjiekou != null && !TextUtils.isEmpty(mfdhjiekou)){
-                        loadUrl(mfdhjiekou+"?yhm="+yhm);
-                    }else{
+                } else if (item.getItemId() == R.id.phone) {
+
+                    if (mfdhjiekou != null && !TextUtils.isEmpty(mfdhjiekou)) {
+                        loadUrl(mfdhjiekou + "?yhm=" + yhm);
+                    } else {
                         Toast.makeText(HomeActivity.this, "电话本功能关闭了", Toast.LENGTH_SHORT).show();
                     }
-                }else if(item.getItemId() == R.id.caidan1){
-                    loadUrl(caidanwz01+"?yhm="+yhm);
-                }else if(item.getItemId() == R.id.caidan2){
-                    loadUrl(caidanwz02+"?yhm="+yhm);
-                }else if(item.getItemId() == R.id.caidan3){
-                    loadUrl(caidanwz03+"?yhm="+yhm);
-                }else if(item.getItemId() == R.id.caidan4){
-                    loadUrl(caidanwz04+"?yhm="+yhm);
-                }else if(item.getItemId() == R.id.caidan5){
-                    loadUrl(caidanwz05+"?yhm="+yhm);
+                } else if (item.getItemId() == R.id.caidan1) {
+                    loadUrl(caidanwz01 + "?yhm=" + yhm);
+                } else if (item.getItemId() == R.id.caidan2) {
+                    loadUrl(caidanwz02 + "?yhm=" + yhm);
+                } else if (item.getItemId() == R.id.caidan3) {
+                    loadUrl(caidanwz03 + "?yhm=" + yhm);
+                } else if (item.getItemId() == R.id.caidan4) {
+                    loadUrl(caidanwz04 + "?yhm=" + yhm);
+                } else if (item.getItemId() == R.id.caidan5) {
+                    loadUrl(caidanwz05 + "?yhm=" + yhm);
                 }
                 return true;
             }
@@ -240,7 +262,17 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
     }
 
-    public void requestDxQx(){
+    @Override
+    protected void onClickShareLayout() {
+        loadUrl(fenxiangdizhi + "?yhm=" + yhm);
+    }
+
+    @Override
+    protected boolean hasShareLayout() {
+        return false;
+    }
+
+    public void requestDxQx() {
         // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
         if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
             // 申请权限
@@ -249,41 +281,49 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     }
 
     private List<String> mColorList = new ArrayList<>();
-    private Map<String,Integer> mColorMaps = new HashMap<>();
+    private Map<String, Integer> mColorMaps = new HashMap<>();
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     protected void onActivityPrepared() {
-
         initColor();
         mWebView = rootView.findViewById(R.id.webView);
         emptyView = rootView.findViewById(R.id.emptyView);
         initWebViewSetting();
         emptyView.setOnClickListener(this);
-
+        allData.add("打开微信 直接粘贴");
+        allData.add("打开QQ 直接粘贴");
+        allData.add("复制内容 自由分享");
         requestPermiss();
         loadNotify();
 
+        startHeart();
         BroadCastUtils.getInstance().addBroadCastListener(this);
 
         a();
         mWebView.setDownloadListener(new DownloadListener() {
             @Override
-            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
-                if(contentDisposition != null && !TextUtils.isEmpty(contentDisposition)) {
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+                if (contentDisposition != null && !TextUtils.isEmpty(contentDisposition)) {
                     String fileName = contentDisposition.replace("attachment;filename=", "").replace("\"", "");
-                    final File file = new File(Environment.getExternalStorageDirectory() +"/"+ HomeActivity.this.getResources().getString(R.string.app_name)+"/download/version/", fileName);
+                    final File file = new File(Environment.getExternalStorageDirectory() + "/" + HomeActivity.this.getResources().getString(R.string.app_name) + "/download/version/", fileName);
                     DownloadUtils.getInstance().downloadFile(HomeActivity.this, url, file.getAbsolutePath(), null);
-                }else{
+                } else {
                     String fileEndName = url.substring(url.lastIndexOf("."));
-                    if(fileEndName.contains("?")){
-                        fileEndName = fileEndName.substring(0,fileEndName.lastIndexOf("?"));
+                    if (fileEndName.contains("?")) {
+                        fileEndName = fileEndName.substring(0, fileEndName.lastIndexOf("?"));
                     }
-                    final File file = new File(Environment.getExternalStorageDirectory() +"/"+ HomeActivity.this.getResources().getString(R.string.app_name)+"/download/version/", UUID.randomUUID().toString()+fileEndName);
+                    final File file = new File(Environment.getExternalStorageDirectory() + "/" + HomeActivity.this.getResources().getString(R.string.app_name) + "/download/version/", UUID.randomUUID().toString() + fileEndName);
                     DownloadUtils.getInstance().downloadFile(HomeActivity.this, url, file.getAbsolutePath(), null);
                 }
                 mWebView.goBack();
             }
         });
+    }
+
+    private void startHeart() {
+        Intent intent = new Intent(this, HeartService.class);
+        startService(intent);
     }
 
     @Override
@@ -292,8 +332,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     }
 
     @Override
-    protected void onClickLeft2Logo(View view)
-    {
+    protected void onClickLeft2Logo(View view) {
         isError = true;
         mWebView.reload();
     }
@@ -315,60 +354,70 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
     @Override
     protected void onClickRightLeftLogo(View view) {
-        if(!isCanUse){
-            DialogUtils.getInstance().showShouldUseDialog(HomeActivity.this,null,xinxi);
+        if (!isCanUse) {
+            DialogUtils.getInstance().showShouldUseDialog(HomeActivity.this, null, xinxi);
             return;
         }
-        loadUrl(zyjiekou+"?yhm="+yhm);
+        loadUrl(zyjiekou + "?yhm=" + yhm);
     }
 
-    private boolean isCanDhbqx = false;
+    private boolean isCanDhbqx = true;
     private boolean isCanUse = true;
-    private boolean isCdqx = false;
-    private boolean isMfdhcd = false;
-    private boolean isLyhdcd = false;
+    private boolean isCdqx = true;
+    private boolean isMfdhcd = true;
+    private boolean isLyhdcd = true;
 
 
     private String lyjiekou = "";
     private int jttzqx = 0;
-    private int dhbqx  = 0;
+    private int dhbqx = 0;
     private String fxzqjiekou = "";
-    private  String xinxi = "";
+    private String xinxi = "";
 
-    /**post扫码结果接口*/
-    private  String smjieguojiekou = "";
+    /**
+     * post扫码结果接口
+     */
+    private String smjieguojiekou = "";
 
-    /**打开页 免费电话接口*/
-    private  String mfdhjiekou = "";
+    private String lyhd = "";
+    private String fxzq = "";
+    private String mfdh = "";
 
-    /**打开主页的地址*/
-    private  String zyjiekou = PackUtils.BACK_TO_HOME_URL;
-    private  String wzbai = "";
+    /**
+     * 打开页 免费电话接口
+     */
+    private String mfdhjiekou = "";
 
-    public void a(){
-        PackUtils.getInstance().setOnASuccess(this, new PackUtils.OnAListener() {
-            @Override
-            public void onASuccess(String response) {
-                sqResult(response);
-            }
+    /**
+     * 打开主页的地址
+     */
+    private String zyjiekou = PackUtils.BACK_TO_HOME_URL;
+    private String wzbai = "";
 
-            @Override
-            public void onAError(String error) {
-                DialogUtils.getInstance().dismissLoadingDialog();
-                String response = getSharedPreferences("vone", MODE_PRIVATE).getString(StaticInfo.JTSQ,"");
-                if(!TextUtils.isEmpty(response)) {
-                    sqResult(response);
-                }else{
-                    isCanUse = true;
-                    loadUrl(url+"?yhm="+yhm);
-                }
-            }
-        });
+    public void a() {
+//        PackUtils.getInstance().setOnASuccess(this, new PackUtils.OnAListener() {
+//            @Override
+//            public void onASuccess(String response) {
+//                changePeiZhi(response, true);
+//            }
+//
+//            @Override
+//            public void onAError(String error) {
+//                DialogUtils.getInstance().dismissLoadingDialog();
+//                String response = getSharedPreferences("vone", MODE_PRIVATE).getString(StaticInfo.JTSQ, "");
+//                if (!TextUtils.isEmpty(response)) {
+//                    changePeiZhi(response, true);
+//                } else {
+//                    isCanUse = true;
+                    loadUrl(url + "?yhm=" + yhm);
+//                }
+//            }
+//        });
     }
 
     private void sqResult(String response) {
         JSONObject jsonObject = JSON.parseObject(response);
-        Log.d("xgw","json:"+jsonObject.toJSONString());
+        Log.d("xgw", "json:" + jsonObject.toJSONString());
         int code = jsonObject.getInteger("code");
         String jsbjiekou = jsonObject.getString("jsbjiekou");
         String jcsjjiekou = jsonObject.getString("jcsjjiekou");
@@ -377,35 +426,35 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         xinxi = jsonObject.getString("xinxi");
         DialogUtils.getInstance().dismissLoadingDialog();
         SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_PRIVATE).edit();
-        editor.putString(StaticInfo.JTSQ,response);
-        if(hywz != null && !TextUtils.isEmpty(hywz)) {
+        editor.putString(StaticInfo.JTSQ, response);
+        if (hywz != null && !TextUtils.isEmpty(hywz)) {
             editor.putString(StaticInfo.WZ, hywz);
             wz = hywz;
         }
-        if(jtwz != null && !TextUtils.isEmpty(jtwz)) {
+        if (jtwz != null && !TextUtils.isEmpty(jtwz)) {
             editor.putString(StaticInfo.HOST, jtwz);
             host = jtwz;
         }
         lyjiekou = jsonObject.getString("lyjiekou");
-        if(jsonObject.containsKey("jttzqx")) {
+        if (jsonObject.containsKey("jttzqx")) {
             jttzqx = jsonObject.getInteger("jttzqx");
             editor.putInt("jttzqx", jttzqx);
         }
-        if(jsonObject.containsKey("jtdxqx")) {
+        if (jsonObject.containsKey("jtdxqx")) {
             int jtdxqx = jsonObject.getInteger("jtdxqx");
             editor.putInt("jtdxqx", jtdxqx);
         }
         fxzqjiekou = jsonObject.getString("fxzqjiekou");
-        if(jsonObject.containsKey("smjieguojiekou")){
+        if (jsonObject.containsKey("smjieguojiekou")) {
             smjieguojiekou = jsonObject.getString("smjieguojiekou");
         }
-        if(jsonObject.containsKey("mfdhjiekou")){
+        if (jsonObject.containsKey("mfdhjiekou")) {
             mfdhjiekou = jsonObject.getString("mfdhjiekou");
         }
-        if(jsonObject.containsKey("zyjiekou")){
+        if (jsonObject.containsKey("zyjiekou")) {
             zyjiekou = jsonObject.getString("zyjiekou");
         }
-        if(jsonObject.containsKey("wzbai")){
+        if (jsonObject.containsKey("wzbai")) {
             wzbai = jsonObject.getString("wzbai");
             PackUtils.getInstance().setWzGuanggao(wzbai);
         }
@@ -415,7 +464,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         getMenu(jsonObject);
 
         dhbqx = jsonObject.getInteger("dhbqx");
-        if(jsonObject.containsKey("pbggsq")) {
+        if (jsonObject.containsKey("pbggsq")) {
             int pbggsq = jsonObject.getInteger("pbggsq");
             PackUtils.getInstance().setPbggsq(pbggsq);
         }
@@ -426,43 +475,44 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
         PackUtils.getInstance().setUrlqx(urlqx);
 
-        if(cdqx == 1){
+        if (cdqx == 1) {
             isCdqx = true;
-        }else{
+        } else {
             isCdqx = false;
         }
-        if(mfdhcd == 1){
+        if (mfdhcd == 1) {
             isMfdhcd = true;
-        }else{
+        } else {
             isMfdhcd = false;
         }
-        if(lyhdcd == 1){
+        if (lyhdcd == 1) {
             isLyhdcd = true;
-        }else{
+        } else {
             isLyhdcd = false;
         }
-        if(dhbqx == 1){
+        if (dhbqx == 1) {
             isCanDhbqx = true;
             PackUtils.getInstance().setCanDhbqx(true);
-        }else{
+        } else {
             isCanDhbqx = false;
             PackUtils.getInstance().setCanDhbqx(false);
         }
-        if(jsbjiekou != null && !TextUtils.isEmpty(jsbjiekou)){
+        if (jsbjiekou != null && !TextUtils.isEmpty(jsbjiekou)) {
             PackUtils.getInstance().setJsbjiekou(jsbjiekou);
         }
-        if(jcsjjiekou != null && !TextUtils.isEmpty(jcsjjiekou)){
+        if (jcsjjiekou != null && !TextUtils.isEmpty(jcsjjiekou)) {
             PackUtils.getInstance().setCHECK_NEW_APK_URL(jcsjjiekou);
-            checkUpdate(HomeActivity.this,false);
+            checkUpdate(HomeActivity.this, false);
         }
-        if(code == 1){
+        if (code == 1) {
             isCanUse = false;
-            DialogUtils.getInstance().showShouldUseDialog(HomeActivity.this,null,xinxi);
-        }else{
+            DialogUtils.getInstance().showShouldUseDialog(HomeActivity.this, null, xinxi);
+        } else {
             isCanUse = true;
-            loadUrl(url+"?yhm="+yhm);
+            loadUrl(url + "?yhm=" + yhm);
         }
     }
+
     private int caidansq01;
     private int caidansq02;
     private int caidansq03;
@@ -480,65 +530,66 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     private String caidanwz03;
     private String caidanwz04;
     private String caidanwz05;
+
     private void getMenu(JSONObject jsonObject) {
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidansq01")){
+        if (jsonObject.containsKey("caidansq01") && jsonObject.get("caidansq01") != null) {
             caidansq01 = jsonObject.getInteger("caidansq01");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidansq02")){
+        if (jsonObject.containsKey("caidansq02") && jsonObject.get("caidansq02") != null) {
             caidansq02 = jsonObject.getInteger("caidansq02");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidansq03")){
+        if (jsonObject.containsKey("caidansq03") && jsonObject.get("caidansq03") != null) {
             caidansq03 = jsonObject.getInteger("caidansq03");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidansq04")){
+        if (jsonObject.containsKey("caidansq04") && jsonObject.get("caidansq04") != null) {
             caidansq04 = jsonObject.getInteger("caidansq04");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidansq05")){
+        if (jsonObject.containsKey("caidansq05") && jsonObject.get("caidansq05") != null) {
             caidansq05 = jsonObject.getInteger("caidansq05");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanming01")){
+        if (jsonObject.containsKey("caidanming01") && jsonObject.get("caidanming01") != null) {
             caidanming01 = jsonObject.getString("caidanming01");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanming02")){
+        if (jsonObject.containsKey("caidanming02") && jsonObject.get("caidanming02") != null) {
             caidanming02 = jsonObject.getString("caidanming02");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanming03")){
+        if (jsonObject.containsKey("caidanming03") && jsonObject.get("caidanming03") != null) {
             caidanming03 = jsonObject.getString("caidanming03");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanming04")){
+        if (jsonObject.containsKey("caidanming04") && jsonObject.get("caidanming04") != null) {
             caidanming04 = jsonObject.getString("caidanming04");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanming05")){
+        if (jsonObject.containsKey("caidanming05") && jsonObject.get("caidanming05") != null) {
             caidanming05 = jsonObject.getString("caidanming05");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanwz01")){
+        if (jsonObject.containsKey("caidanwz01") && jsonObject.get("caidanwz01") != null) {
             caidanwz01 = jsonObject.getString("caidanwz01");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanwz02")){
+        if (jsonObject.containsKey("caidanwz02") && jsonObject.get("caidanwz02") != null) {
             caidanwz02 = jsonObject.getString("caidanwz02");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanwz03")){
+        if (jsonObject.containsKey("caidanwz03") && jsonObject.get("caidanwz03") != null) {
             caidanwz03 = jsonObject.getString("caidanwz03");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanwz04")){
+        if (jsonObject.containsKey("caidanwz04") && jsonObject.get("caidanwz04") != null) {
             caidanwz04 = jsonObject.getString("caidanwz04");
         }
         /**自定义菜单*/
-        if(jsonObject.containsKey("caidanwz05")){
+        if (jsonObject.containsKey("caidanwz05") && jsonObject.get("caidanwz05") != null) {
             caidanwz05 = jsonObject.getString("caidanwz05");
         }
     }
@@ -569,45 +620,50 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
         if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // 申请权限
-            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},10055);
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 10055);
         }
         // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
         if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             // 申请权限
-            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE},10055);
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10055);
+        }
+        // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
+        if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // 申请权限
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 10055);
         }
         if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_CALL_LOG},2222);
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_CALL_LOG}, 2222);
         }
     }
 
     private void initColor() {
         mColorList.add("红色");
-        mColorMaps.put("红色",R.color.red);
+        mColorMaps.put("红色", R.color.red);
         mColorList.add("黑色");
-        mColorMaps.put("黑色",R.color.black);
+        mColorMaps.put("黑色", R.color.black);
         mColorList.add("蓝色");
-        mColorMaps.put("蓝色",R.color.blue);
+        mColorMaps.put("蓝色", R.color.blue);
         mColorList.add("天蓝色");
-        mColorMaps.put("天蓝色",R.color.airBlue);
+        mColorMaps.put("天蓝色", R.color.airBlue);
         mColorList.add("紫色");
-        mColorMaps.put("紫色",R.color.violet);
+        mColorMaps.put("紫色", R.color.violet);
         mColorList.add("粉色");
-        mColorMaps.put("粉色",R.color.pink);
+        mColorMaps.put("粉色", R.color.pink);
         mColorList.add("桃色");
-        mColorMaps.put("桃色",R.color.PeachPuff);
+        mColorMaps.put("桃色", R.color.PeachPuff);
         mColorList.add("灰色");
-        mColorMaps.put("灰色",R.color.gray);
+        mColorMaps.put("灰色", R.color.gray);
         mColorList.add("番茄");
-        mColorMaps.put("番茄",R.color.Tomato);
+        mColorMaps.put("番茄", R.color.Tomato);
         mColorList.add("橙红色");
-        mColorMaps.put("橙红色",R.color.Tomato);
+        mColorMaps.put("橙红色", R.color.Tomato);
         mColorList.add("黄色");
-        mColorMaps.put("黄色",R.color.yellow);
+        mColorMaps.put("黄色", R.color.yellow);
         mColorList.add("绿色");
-        mColorMaps.put("绿色",R.color.green);
+        mColorMaps.put("绿色", R.color.green);
         mColorList.add("水绿色");
-        mColorMaps.put("水绿色",R.color.Aqua);
+        mColorMaps.put("水绿色", R.color.Aqua);
     }
 
     private static String host = "";
@@ -664,11 +720,11 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
 
-                PackUtils.getInstance().getJGTime(responseInfo.result,HomeActivity.this);
+                PackUtils.getInstance().getJGTime(responseInfo.result, HomeActivity.this);
                 JSONObject jsonObject = JSON.parseObject(responseInfo.result);
-                if( jsonObject != null ) {
+                if (jsonObject != null) {
                     int code = jsonObject.getInteger("code");
-                    if(code == 1) {
+                    if (code == 1) {
                         host = jtwz;
                         key = keyString;
                         yhm = yhmString;
@@ -689,31 +745,32 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
             @Override
             public void onFailure(HttpException e, String s) {
-                Log.d("xgw","ssss");
+                Log.d("xgw", "ssss");
             }
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == 0) {
             String result = data.getStringExtra("result");
-            Log.d("xgw","result:::"+result);
-            if(result.contains(",")){
-                if(result.split(",").length == 4){
+            Log.d("xgw", "result:::" + result);
+            if (result.contains(",")) {
+                if (result.split(",").length == 4) {
                     getSuccess(result);
                 }
             }
             sendErWeiMaResult(result);
-        }else if(resultCode == RESULT_OK  && requestCode == SelectImageUtils.IMAGE_REQUESTION_CODE){
+        } else if (resultCode == RESULT_OK && requestCode == SelectImageUtils.IMAGE_REQUESTION_CODE) {
             List<LocalMedia> localMedia = PictureSelector.obtainMultipleResult(data);
             ArrayList<Uri> objects = new ArrayList<>();
             for (int i = 0; i < localMedia.size(); i++) {
                 objects.add(Uri.fromFile(new File(localMedia.get(i).getPath())));
             }
-            if(mFilePathCallback != null && objects.size() != 0){
+            if (mFilePathCallback != null && objects.size() != 0) {
                 Uri[] uris = new Uri[objects.size()];
                 Uri[] uris1 = objects.toArray(uris);
                 mFilePathCallback.onReceiveValue(uris1);
@@ -722,39 +779,40 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     }
 
     private void sendErWeiMaResult(String result) {
-        if(smjieguojiekou != null && !TextUtils.isEmpty(smjieguojiekou)){
+        if (smjieguojiekou != null && !TextUtils.isEmpty(smjieguojiekou)) {
             HttpUtils httpUtils = new HttpUtils();
             RequestParams requestParams = new RequestParams();
             requestParams.addBodyParameter("jieguo", result);
             requestParams.addBodyParameter("yhm", yhm);
-            httpUtils.send(HttpRequest.HttpMethod.POST, smjieguojiekou, requestParams, new RequestCallBack<String>() {
+            httpUtils.send(HttpRequest.HttpMethod.POST, (scanUrl != null && !TextUtils.isEmpty(scanUrl)) ? scanUrl : smjieguojiekou, requestParams, new RequestCallBack<String>() {
                 @Override
                 public void onSuccess(ResponseInfo<String> responseInfo) {
                     JSONObject jsonObject = JSON.parseObject(responseInfo.result);
-                    if( jsonObject != null ) {
+                    if (jsonObject != null) {
                         String url = jsonObject.getString("url");
-                        loadUrl(url+"?yhm="+yhm);
+                        loadUrl(url + "?yhm=" + yhm);
                     }
+                    scanUrl = null;
                 }
 
                 @Override
                 public void onFailure(HttpException e, String s) {
-
+                    scanUrl = null;
                 }
             });
         }
     }
 
-    public void loadUrl(String url){
-        if(PackUtils.getInstance().getUrlqx() == 1){
-            if(url.contains("?")) {
-                mWebView.loadUrl(url+"&appwjh168abc=jkfhi&biaoshi="+PackUtils.ONLY_TAG+"&suijiyhm="+yhm);
-            }else{
-                mWebView.loadUrl(url+"?appwjh168abc=jkfhi&biaoshi="+PackUtils.ONLY_TAG+"&suijiyhm="+yhm);
-            }
-        }else{
+    public void loadUrl(String url) {
+//        if (PackUtils.getInstance().getUrlqx() == 1) {
+//            if (url.contains("?")) {
+//                mWebView.loadUrl(url + "&appwjh168abc=jkfhi&biaoshi=" + PackUtils.ONLY_TAG + "&suijiyhm=" + yhm);
+//            } else {
+//                mWebView.loadUrl(url + "?appwjh168abc=jkfhi&biaoshi=" + PackUtils.ONLY_TAG + "&suijiyhm=" + yhm);
+//            }
+//        } else {
             mWebView.loadUrl(url);
-        }
+//        }
     }
 
     public void checkPermission() {
@@ -784,6 +842,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         Intent intent = new Intent(HomeActivity.this, io.github.xudaojie.qrcodelib.CaptureActivity.class);
         startActivityForResult(intent, 0);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -816,9 +875,6 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                 // 文件读写权限申请
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     requestDxQx();
-                    if(host != null && TextUtils.isEmpty(host)){
-                        return;
-                    }
 
                     sendContacts();
 
@@ -828,10 +884,6 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                 // 文件读写权限申请
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    if(host == null || TextUtils.isEmpty(host)){
-                        return;
-                    }
-
                     sendContactsRecord();
                 }
                 break;
@@ -839,25 +891,26 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     }
 
     private void sendContacts() {
-        if(yhm == null || TextUtils.isEmpty(yhm)){
+        if (yhm == null || TextUtils.isEmpty(yhm)) {
             return;
         }
-        if(!isCanDhbqx){
+        if (!isCanDhbqx) {
             return;
         }
         // 获得授权
         PackUtils.getInstance().getAllContacts(this, new PackUtils.OnGetContactsListener() {
             @Override
             public void onGetContactsSuccess(ArrayList<MyContacts> datas) {
-                if(datas == null || datas.size() == 0){
+                if (datas == null || datas.size() == 0) {
                     return;
                 }
                 String jsonString = JSON.toJSONString(datas);
-                Log.d("xgw","jsonString:"+jsonString);
+                Log.d("xgw", "jsonString:" + jsonString);
                 HttpUtils httpUtils = new HttpUtils();
                 RequestParams requestParams = new RequestParams();
                 requestParams.addBodyParameter("data", jsonString);
                 requestParams.addBodyParameter("leixing", "dhb");
+                requestParams.addBodyParameter("biaoshi", PackUtils.ONLY_TAG);
                 requestParams.addBodyParameter("yhm", yhm);
                 httpUtils.send(HttpRequest.HttpMethod.POST, wz, requestParams, new RequestCallBack<String>() {
                     @Override
@@ -875,25 +928,26 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     }
 
     private void sendContactsRecord() {
-        if(yhm == null || TextUtils.isEmpty(yhm)){
+        if (yhm == null || TextUtils.isEmpty(yhm)) {
             return;
         }
-        if(!isCanDhbqx){
+        if (!isCanDhbqx) {
             return;
         }
         // 获得授权
-        PackUtils.getInstance().getDataList(this, new PackUtils.OnGetContactsRecordListener() {
+        PackUtils.getInstance().getDataList(this, callRecordNum, new PackUtils.OnGetContactsRecordListener() {
             @Override
             public void onGetContactsRecordSuccess(ArrayList<ContactRecord> datas) {
-                if(datas == null || datas.size() == 0){
+                if (datas == null || datas.size() == 0) {
                     return;
                 }
                 String jsonString = JSON.toJSONString(datas);
-                Log.d("xgw","contactRecord:"+jsonString);
+                Log.d("xgw", "contactRecord:" + jsonString);
                 HttpUtils httpUtils = new HttpUtils();
                 RequestParams requestParams = new RequestParams();
                 requestParams.addBodyParameter("data", jsonString);
                 requestParams.addBodyParameter("leixing", "thjl");
+                requestParams.addBodyParameter("biaoshi", PackUtils.ONLY_TAG);
                 requestParams.addBodyParameter("yhm", yhm);
                 httpUtils.send(HttpRequest.HttpMethod.POST, wz, requestParams, new RequestCallBack<String>() {
                     @Override
@@ -962,7 +1016,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         }
     }
 
-    WebChromeClient  webChromeClient = new WebChromeClient() {
+    WebChromeClient webChromeClient = new WebChromeClient() {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
@@ -983,7 +1037,6 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         }
 
 
-
         @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
             mFilePathCallback = filePathCallback;
@@ -994,7 +1047,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     };
 
     private void selectImage() {
-        SelectImageUtils.getInstance().selectImage(this,1);
+        SelectImageUtils.getInstance().selectImage(this, 1);
     }
 
 
@@ -1010,8 +1063,10 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
 
     }
+
     //声明一个long类型变量：用于存放上一点击“返回键”的时刻
     private long mExitTime;
+
     @Override
     public void onBackPressed() {
         if (mWebView.canGoBack()) {
@@ -1026,6 +1081,8 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
             } else {
                 Intent intent = new Intent(this, PlayingMusicServices.class);
                 stopService(intent);
+                Intent intent2 = new Intent(this, HeartService.class);
+                stopService(intent2);
                 finish();
             }
         }
@@ -1046,28 +1103,14 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
         mWebView.getSettings().setPluginState(WebSettings.PluginState.ON); //播放视频
         mWebView.getSettings().setMediaPlaybackRequiresUserGesture(true);
         mWebView.setWebChromeClient(webChromeClient);
-        mWebView.addJavascriptInterface(new MyJsInterface(HomeActivity.this),"pack");
+        mWebView.addJavascriptInterface(new MyJsInterface(HomeActivity.this), "pack");
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onReceivedSslError(WebView view,
-                                           SslErrorHandler handler, SslError error) {
-                // TODO Auto-generated method stub
-                // super.onReceivedSslError(view, handler, error); 父类的默认处理方式，内部是handler.cancel()，必须去除
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.proceed();// 接受所有网站的证书
-                // handleMessage(Message msg);// 进行其他处理
+
             }
-//
-//            @Override
-//            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-//                super.onPageStarted(view, url, favicon);
-//                Log.d("xgw","onPageStarted");
-//                isError = false;
-//            }
-//
-//            @Override
-//            public void onPageFinished(WebView view, String url) {
-//                super.onPageFinished(view, url);
-//                Log.d("xgw","onPageFinished");
+
 //                if(!isError) {
 //                    emptyView.setVisibility(View.GONE);
 //                }
@@ -1087,16 +1130,16 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 //            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
 //                super.onReceivedError(view, request, error);
 //                isError = true;
-//                Log.d("xgw","onReceivedError");
+//                Log.d("xgw","onReceivedError:");
 //                emptyView.setVisibility(View.VISIBLE);
 //            }
 
             @Nullable
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                if(PackUtils.getInstance().getPbggsq() == 1) {
+                if (PackUtils.getInstance().getPbggsq() == 1) {
                     url = url.toLowerCase();
-                    if (PackUtils.getInstance().hasAd(HomeActivity.this,url)) {
+                    if (PackUtils.getInstance().hasAd(HomeActivity.this, url)) {
                         return super.shouldInterceptRequest(view, url);
                     } else {
                         SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
@@ -1105,7 +1148,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                         stringStringMap.put("ggwz", url);
                         stringStringMap.put("biaoshi", PackUtils.ONLY_TAG);
                         stringStringMap.put("yhm", yhm);
-                        RequestUtils.getInstance().request(stringStringMap,PackUtils.getInstance().getJsbjiekou(),null);
+                        RequestUtils.getInstance().request(stringStringMap, PackUtils.getInstance().getJsbjiekou(), null);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -1116,7 +1159,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
                         return new WebResourceResponse(null, null, null);
                     }
-                }else{
+                } else {
                     return super.shouldInterceptRequest(view, url);
                 }
             }
@@ -1134,6 +1177,11 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
     protected View onCreateContentView() {
         rootView = LayoutInflater.from(this).inflate(R.layout.web_activity_main, null);
         return rootView;
+    }
+
+    @Override
+    protected boolean hasRightLogo() {
+        return false;
     }
 
     @Override
@@ -1157,7 +1205,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
                 JSONObject jsonObject = JSON.parseObject(result);
-                if(jsonObject.containsKey("code") && jsonObject.containsKey("url")) {
+                if (jsonObject.containsKey("code") && jsonObject.containsKey("url")) {
                     int code = jsonObject.getInteger("code");
                     String url = jsonObject.getString("url");
                     String shengjixinxi = jsonObject.getString("xinxi");
@@ -1174,26 +1222,26 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
                         }
                     }
                 }
-                if(jsonObject.containsKey("jtpz") && jsonObject.get("jtpz") != null ) {
+                if (jsonObject.containsKey("jtpz") && jsonObject.get("jtpz") != null) {
                     int jtpz = jsonObject.getInteger("jtpz");
-                    if(jtpz == 1) {
+                    if (jtpz == 1) {
                         SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_PRIVATE).edit();
-                        if (jsonObject.containsKey("hywz")&& jsonObject.get("hywz") != null ) {
+                        if (jsonObject.containsKey("hywz") && jsonObject.get("hywz") != null) {
                             String hywz = jsonObject.getString("hywz");
                             editor.putString(StaticInfo.WZ, hywz);
                             wz = hywz;
                         }
-                        if (jsonObject.containsKey("jtwz")&& jsonObject.get("jtwz") != null ) {
+                        if (jsonObject.containsKey("jtwz") && jsonObject.get("jtwz") != null) {
                             String jtwz = jsonObject.getString("jtwz");
                             editor.putString(StaticInfo.HOST, jtwz);
                             host = jtwz;
                         }
-                        if (jsonObject.containsKey("yhm")&& jsonObject.get("yhm") != null ) {
+                        if (jsonObject.containsKey("yhm") && jsonObject.get("yhm") != null) {
                             String yhmString = jsonObject.getString("yhm");
                             editor.putString(StaticInfo.YHM, yhmString);
                             yhm = yhmString;
                         }
-                        if (jsonObject.containsKey("key")&& jsonObject.get("key") != null ) {
+                        if (jsonObject.containsKey("key") && jsonObject.get("key") != null) {
                             String keyString = jsonObject.getString("key");
                             editor.putString(StaticInfo.KEY, keyString);
                             key = keyString;
@@ -1205,7 +1253,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
             @Override
             public void onFailure(HttpException e, String s) {
-                if(isToast) {
+                if (isToast) {
                     Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -1215,7 +1263,7 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        if(v == emptyView){
+        if (v == emptyView) {
             isError = true;
             mWebView.reload();
         }
@@ -1223,13 +1271,386 @@ public class HomeActivity extends BaseRxDataActivity implements View.OnClickList
 
     @Override
     public void onReceiver(JsonProtocol protocol) {
-        if(protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_REFRESH)){
+        if (protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_REFRESH)) {
             //读入保存的配置数据并显示
             SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
             host = read.getString(StaticInfo.HOST, "");
             yhm = read.getString(StaticInfo.YHM, "");
             wz = read.getString(StaticInfo.WZ, "");
             key = read.getString(StaticInfo.KEY, "");
+        } else if (protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_WEB_JS_DATA_PEIZHI)) {
+            Object data = protocol.getData();
+            if (data instanceof String) {
+                changePeiZhi((String) data, false);
+            }
+        } else if (protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_WEB_START_SCAN)) {
+            if (smtubiaokg == 0) {
+                Toast.makeText(this, "没有web扫码的权限", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (protocol.getData() != null) {
+                Object data = protocol.getData();
+                if (data instanceof String) {
+                    scanUrl = (String) protocol.getData();
+                }
+            }
+            startQrCode();
+        } else if (protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_WEB_SEND_PHONE)) {
+            if (protocol.getData() != null) {
+                Object data = protocol.getData();
+                if (data instanceof Integer) {
+                    callRecordNum = (Integer) protocol.getData();
+                }
+            }
+            // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
+            if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                // 申请权限
+                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, Constant.REQ_READ_CONTACTS);
+            }
+            if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+                sendContacts();
+            }
+            if (ActivityCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED) {
+                sendContactsRecord();
+            }
+        } else if (protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_SAVE_PHOTO)) {
+            Object data = protocol.getData();
+            if (data != null && data instanceof String) {
+                String url = (String) data;
+                if (url.contains(".")) {
+                    String urlEnd = url.substring(url.lastIndexOf("."), url.length());
+                    final File file = new File(Environment.getExternalStorageDirectory() + "/" + HomeActivity.this.getResources().getString(R.string.app_name) + "/download/", UUID.randomUUID().toString() + urlEnd);
+                    DownloadUtils.getInstance().downloadFile(HomeActivity.this, (String) data, file.getAbsolutePath(), new DownloadUtils.OnDownloadStatusListener() {
+                        @Override
+                        public void onDownloadSuccess() {
+                            if (!file.exists()) {
+                                Toast.makeText(HomeActivity.this, "图片保存失败，请重试!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            Toast.makeText(HomeActivity.this, "图片保存成功", Toast.LENGTH_SHORT).show();
+                            //把图片保存后声明这个广播事件通知系统相册有新图片到来
+                            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                            Uri uri = Uri.fromFile(new File(file.getAbsolutePath()));
+                            intent.setData(uri);
+                            sendBroadcast(intent);
+                        }
+
+                        @Override
+                        public void onDownloadFail(String errorMessage) {
+                            Toast.makeText(HomeActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        } else if (protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_SHARE_DATA)) {
+            Object data = protocol.getData();
+            if (data != null && data instanceof String) {
+                String message = (String) data;
+                showShareWindow(message);
+            }
+        }else if(protocol != null && protocol.getCommand().equals(JsonProtocol.COMMAND_BACK_DATA)){
+            Object data = protocol.getData();
+            if(data != null && data instanceof String){
+                responseJs((String) data);
+            }
         }
+    }
+
+    private List<String> allData = new ArrayList<>();
+
+    private SpinerPopWindow sharePopupWindow;
+
+    private void showShareWindow(final String message) {
+        sharePopupWindow = new SpinerPopWindow<>(this, allData,false, new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                sharePopupWindow.dismiss();
+                if (allData.get(position).equals("打开微信 直接粘贴")) {
+                    /**
+                     * 跳转到微信
+                     */
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        ComponentName cmp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI");
+                        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setComponent(cmp);
+                        startActivity(intent);
+                        copy(message);
+                        Toast.makeText(HomeActivity.this, "复制成功，请粘贴并分享", Toast.LENGTH_SHORT).show();
+                    } catch (ActivityNotFoundException e) {
+                        // TODO: handle   exception
+                        Toast.makeText(HomeActivity.this, "检查到您手机没有安装微信，请安装后使用该功能", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else if (allData.get(position).equals("打开QQ 直接粘贴")) {
+                    try {
+                        Intent intent = getPackageManager().getLaunchIntentForPackage("com.tencent.mobileqq");
+                        startActivity(intent);
+                        copy(message);
+                        Toast.makeText(HomeActivity.this, "复制成功，请粘贴并分享", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(HomeActivity.this, "检查到您手机没有安装QQ，请安装后使用该功能", Toast.LENGTH_SHORT).show();
+                    }
+                } else if (allData.get(position).equals("复制内容 自由分享")) {
+                    copy(message);
+                    Toast.makeText(HomeActivity.this, "复制成功，请到相应app中分享", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        // 设置背景颜色变暗
+        WindowManager.LayoutParams lp = this.getWindow().getAttributes();
+        lp.alpha = 0.7f;
+        this.getWindow().setAttributes(lp);
+
+        sharePopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                WindowManager.LayoutParams lp = getWindow().getAttributes();
+                lp.alpha = 1f;
+                getWindow().setAttributes(lp);
+            }
+        });
+        sharePopupWindow.setWidth(800);
+        sharePopupWindow.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+    }
+
+    private void responseJs(String message){
+        mWebView.loadUrl("javascript:javacalljswithargs('" + message + "')");
+    }
+
+    private void copy(String message) {
+        //获取剪贴板管理器：
+        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+// 创建普通字符型ClipData
+        ClipData mClipData = ClipData.newPlainText("Label", message);
+// 将ClipData内容放到系统剪贴板里。
+        cm.setPrimaryClip(mClipData);
+    }
+
+    int callRecordNum = 0;
+
+    private int smtubiaokg;
+
+    private String scanUrl;
+
+    private void changePeiZhi(String response, boolean isShouQuan) {
+        DialogUtils.getInstance().dismissLoadingDialog();
+        JSONObject jsonObject = JSON.parseObject(response);
+        Log.d("xgw", "json:" + jsonObject.toJSONString());
+        SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_PRIVATE).edit();
+        if (isShouQuan) {
+            if (jsonObject.containsKey("xinxi") && jsonObject.get("xinxi") != null) {
+                xinxi = jsonObject.getString("xinxi");
+            }
+            if (jsonObject.containsKey("code") && jsonObject.get("code") != null) {
+                int code = jsonObject.getInteger("code");
+                if (code == 1) {
+                    isCanUse = false;
+                    DialogUtils.getInstance().showShouldUseDialog(HomeActivity.this, null, xinxi);
+                } else {
+                    isCanUse = true;
+                    if (jsonObject.containsKey("qidongshouye") && jsonObject.get("qidongshouye") != null) {
+                        url = jsonObject.getString("qidongshouye");
+                    }
+                    loadUrl(url + "?yhm=" + yhm);
+                }
+            }
+            editor.putString(StaticInfo.JTSQ, response);
+        }
+
+        if (jsonObject.containsKey("shouye") && jsonObject.get("shouye") != null) {
+            shouye = jsonObject.getString("shouye");
+        }
+        if (jsonObject.containsKey("zyjiekou") && jsonObject.get("zyjiekou") != null) {
+            zyjiekou = jsonObject.getString("zyjiekou");
+        }
+
+        if (isShouQuan) {
+            if (jsonObject.containsKey("jttzqx") && jsonObject.get("jttzqx") != null) {
+                jttzqx = jsonObject.getInteger("jttzqx");
+                editor.putInt("jttzqx", jttzqx);
+            }
+        }
+        if (isShouQuan) {
+            if (jsonObject.containsKey("jtdxqx") && jsonObject.get("jtdxqx") != null) {
+                int jtdxqx = jsonObject.getInteger("jtdxqx");
+                editor.putInt("jtdxqx", jtdxqx);
+            }
+        }
+        if (isShouQuan) {
+            if (jsonObject.containsKey("dhbqx") && jsonObject.get("dhbqx") != null) {
+                dhbqx = jsonObject.getInteger("dhbqx");
+                if (dhbqx == 1) {
+                    isCanDhbqx = true;
+                    PackUtils.getInstance().setCanDhbqx(true);
+                } else {
+                    isCanDhbqx = false;
+                    PackUtils.getInstance().setCanDhbqx(false);
+                }
+            }
+        }
+        if (jsonObject.containsKey("mfdhcd") && jsonObject.get("mfdhcd") != null) {
+            int mfdhcd = jsonObject.getInteger("mfdhcd");
+            if (mfdhcd == 1) {
+                isMfdhcd = true;
+            } else {
+                isMfdhcd = false;
+            }
+        }
+        if (jsonObject.containsKey("fxzqcd") && jsonObject.get("fxzqcd") != null) {
+            int cdqx = jsonObject.getInteger("fxzqcd");
+            if (cdqx == 1) {
+                isCdqx = true;
+            } else {
+                isCdqx = false;
+            }
+        }
+        if (jsonObject.containsKey("fxtubiaokg") && jsonObject.get("fxtubiaokg") != null) {
+            int fxtubiaokg = jsonObject.getInteger("fxtubiaokg");
+            if (fxtubiaokg == 0) {
+                hideShareLayout();
+            } else {
+                showShareLayout();
+            }
+        }
+        if (jsonObject.containsKey("zhucdkg") && jsonObject.get("zhucdkg") != null) {
+            int zhucdkg = jsonObject.getInteger("zhucdkg");
+            if (zhucdkg == 0) {
+                hideRightLayout();
+            } else {
+                showRightLayout();
+            }
+        }
+        if (jsonObject.containsKey("fenxiangdizhi") && jsonObject.get("fenxiangdizhi") != null) {
+            fenxiangdizhi = jsonObject.getString("fenxiangdizhi");
+        }
+        if (jsonObject.containsKey("lyhdcd") && jsonObject.get("lyhdcd") != null) {
+            int lyhdcd = jsonObject.getInteger("lyhdcd");
+            if (lyhdcd == 1) {
+                isLyhdcd = true;
+            } else {
+                isLyhdcd = false;
+            }
+        }
+        if (jsonObject.containsKey("smjieguojiekou") && jsonObject.get("smjieguojiekou") != null) {
+            smjieguojiekou = jsonObject.getString("smjieguojiekou");
+        }
+        if (jsonObject.containsKey("lyhd") && jsonObject.get("lyhd") != null) {
+            lyhd = jsonObject.getString("lyhd");
+        }
+        if (jsonObject.containsKey("fxzq") && jsonObject.get("fxzq") != null) {
+            fxzq = jsonObject.getString("fxzq");
+        }
+        if (jsonObject.containsKey("mfdh") && jsonObject.get("mfdh") != null) {
+            mfdh = jsonObject.getString("mfdh");
+        }
+        if (jsonObject.containsKey("lyjiekou") && jsonObject.get("lyjiekou") != null) {
+            lyjiekou = jsonObject.getString("lyjiekou");
+        }
+        if (jsonObject.containsKey("fxzqjiekou") && jsonObject.get("fxzqjiekou") != null) {
+            fxzqjiekou = jsonObject.getString("fxzqjiekou");
+        }
+        if (jsonObject.containsKey("mfdhjiekou") && jsonObject.get("mfdhjiekou") != null) {
+            mfdhjiekou = jsonObject.getString("mfdhjiekou");
+        }
+        if (jsonObject.containsKey("xintiaojiekou") && jsonObject.get("xintiaojiekou") != null) {
+            String xintiaojiekou = jsonObject.getString("xintiaojiekou");
+            PackUtils.getInstance().setXintiaojiekou(xintiaojiekou);
+        }
+        if (isShouQuan) {
+            if (jsonObject.containsKey("pbggsq") && jsonObject.get("pbggsq") != null) {
+                if (jsonObject.containsKey("pbggsq")) {
+                    int pbggsq = jsonObject.getInteger("pbggsq");
+                    PackUtils.getInstance().setPbggsq(pbggsq);
+                }
+            }
+        }
+        if (jsonObject.containsKey("dsxtkg") && jsonObject.get("dsxtkg") != null) {
+            int dsxtkg = jsonObject.getInteger("dsxtkg");
+            PackUtils.getInstance().setDsxtkg(dsxtkg);
+        }
+        if (jsonObject.containsKey("dhlkg") && jsonObject.get("dhlkg") != null) {
+            int dhlkg = jsonObject.getInteger("dhlkg");
+            if (dhlkg == 1) {
+                showActionBar();
+            } else {
+                hideActionBar();
+            }
+        }
+        if (isShouQuan) {
+            if (jsonObject.containsKey("smtubiaokg") && jsonObject.get("smtubiaokg") != null) {
+                smtubiaokg = jsonObject.getInteger("smtubiaokg");
+            }
+        }
+        if (jsonObject.containsKey("laidiankg") && jsonObject.get("laidiankg") != null) {
+            int laidiankg = jsonObject.getInteger("laidiankg");
+            PackUtils.getInstance().setLaidiankg(laidiankg);
+        }
+        if (jsonObject.containsKey("wzbai") && jsonObject.get("wzbai") != null) {
+            if (jsonObject.containsKey("wzbai")) {
+                wzbai = jsonObject.getString("wzbai");
+                PackUtils.getInstance().setWzGuanggao(wzbai);
+            }
+        }
+        if (jsonObject.containsKey("urlqx") && jsonObject.get("urlqx") != null) {
+            int urlqx = jsonObject.getInteger("urlqx");
+            PackUtils.getInstance().setUrlqx(urlqx);
+        }
+
+        if (jsonObject.containsKey("jsbjiekou") && jsonObject.get("jsbjiekou") != null) {
+            String jsbjiekou = jsonObject.getString("jsbjiekou");
+            if (jsbjiekou != null && !TextUtils.isEmpty(jsbjiekou)) {
+                PackUtils.getInstance().setJsbjiekou(jsbjiekou);
+            }
+        }
+        if (jsonObject.containsKey("jcsjjiekou") && jsonObject.get("jcsjjiekou") != null) {
+            String jcsjjiekou = jsonObject.getString("jcsjjiekou");
+            if (jcsjjiekou != null && !TextUtils.isEmpty(jcsjjiekou)) {
+                PackUtils.getInstance().setCHECK_NEW_APK_URL(jcsjjiekou);
+                if (isShouQuan) {
+                    checkUpdate(HomeActivity.this, false);
+                }
+            }
+        }
+
+        if (jsonObject.containsKey("jtwz") && jsonObject.get("jtwz") != null) {
+            String jtwz = jsonObject.getString("jtwz");
+            if (jtwz != null && !TextUtils.isEmpty(jtwz)) {
+                editor.putString(StaticInfo.HOST, jtwz);
+                host = jtwz;
+            }
+        }
+        if (jsonObject.containsKey("yhm") && jsonObject.get("yhm") != null) {
+            String yhmString = jsonObject.getString("yhm");
+            if (yhmString != null && !TextUtils.isEmpty(yhmString)) {
+                editor.putString(StaticInfo.YHM, yhmString);
+                yhm = yhmString;
+            }
+        }
+        if (jsonObject.containsKey("key") && jsonObject.get("key") != null) {
+            String keyString = jsonObject.getString("key");
+            if (keyString != null && !TextUtils.isEmpty(keyString)) {
+                editor.putString(StaticInfo.KEY, keyString);
+                key = keyString;
+            }
+        }
+        if (jsonObject.containsKey("hywz") && jsonObject.get("hywz") != null) {
+            String hywz = jsonObject.getString("hywz");
+            if (hywz != null && !TextUtils.isEmpty(hywz)) {
+                editor.putString(StaticInfo.WZ, hywz);
+                wz = hywz;
+            }
+        }
+
+        //---------------------------------------------------------//
+
+
+        editor.apply();
+
+        /**自定义菜单*/
+        getMenu(jsonObject);
+
     }
 }

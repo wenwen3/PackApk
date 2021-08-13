@@ -5,5 +5,5 @@ package com.google.zxing.camera;
  */
 
 public class b {
-    public static final String b ="wbsq.169he";
+    public static final String b ="sq.renren";
 }

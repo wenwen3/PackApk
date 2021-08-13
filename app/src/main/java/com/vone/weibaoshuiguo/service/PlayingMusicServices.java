@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.vone.qrcode.R;
 import com.vone.weibaoshuiguo.util.PackUtils;
@@ -52,11 +53,16 @@ public class PlayingMusicServices extends Service {
         switch (intent.getIntExtra("type",-1)){
             case PackUtils.TYPE_PLAY_AUDIO:
                 String url = intent.getStringExtra("url");
+                int resId = intent.getIntExtra("resId",0);
                     //重置mediaplayer
                     mediaPlayer.reset();
                     //将需要播放的资源与之绑定
                     if(url == null || TextUtils.isEmpty(url)) {
-                        mediaPlayer = MediaPlayer.create(this, R.raw.bg_voice);
+                        if(resId != 0) {
+                            mediaPlayer = MediaPlayer.create(this, resId);
+                        }else{
+                            Toast.makeText(this, "播放失败", Toast.LENGTH_SHORT).show();
+                        }
                     }else{
                         mediaPlayer =new MediaPlayer();
                         try {

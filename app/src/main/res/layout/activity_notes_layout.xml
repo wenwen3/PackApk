@@ -123,7 +123,7 @@
                 android:paddingLeft="7dp"
                 android:paddingRight="7dp"
                 android:background="#1BA77B"
-                android:text="设备绑定"/>
+                android:text="功能定制"/>
 
         </LinearLayout>
         </LinearLayout>

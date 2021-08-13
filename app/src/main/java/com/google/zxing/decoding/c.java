@@ -5,6 +5,5 @@ package com.google.zxing.decoding;
  */
 
 public class c {
-    public static final String a ="zuo.com/Wei";
-
+    public static final String a ="aiziyuan.com/";
 }

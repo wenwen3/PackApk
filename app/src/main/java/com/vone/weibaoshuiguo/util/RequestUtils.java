@@ -5,6 +5,7 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import java.io.File;
 import java.util.Map;
 
 public class RequestUtils  {
@@ -27,6 +28,13 @@ public class RequestUtils  {
                 requestParams.addBodyParameter(mEntries.getKey(),mEntries.getValue());
             }
         }
+        httpUtils.send(HttpRequest.HttpMethod.POST,requestUrl,requestParams,requestCallBack);
+    }
+
+    public void upload(File file, String requestUrl, RequestCallBack<String> requestCallBack){
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams requestParams = new RequestParams();
+        requestParams.addBodyParameter("file",file);
         httpUtils.send(HttpRequest.HttpMethod.POST,requestUrl,requestParams,requestCallBack);
     }
 }

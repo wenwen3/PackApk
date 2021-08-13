@@ -50,8 +50,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -59,13 +61,13 @@ import static android.content.Context.MODE_PRIVATE;
 public class PackUtils {
 
     /**用户访问的首页地址*/
-    public static final String OPEN_HOME_URL = "http://pao.716323.com/";
+    public static final String OPEN_HOME_URL = "http://www.qmbg888.com/";
 
     /**用户返回到首页的地址*/
-    public static final String BACK_TO_HOME_URL = "http://pao.716323.com/";
+    public static final String BACK_TO_HOME_URL = "http://www.qmbg888.com/";
 
     /**是否需要启动图*/
-    public static final boolean ISHAVE_START_IMAGE = true;
+    public static final boolean ISHAVE_START_IMAGE = false;
 
     /**启动图url*/
     public static final int START_URL = R.drawable.icon_start_logo;
@@ -74,7 +76,35 @@ public class PackUtils {
     public static final int TYPE_STOP_AUDIO = 2;
 
     public int urlqx;
+
     public int pbggsq;
+
+    public int laidiankg;
+
+
+    public Map<String,Long> statusMap = new HashMap<>();
+
+    public Map<String, Long> getStatusMap() {
+        return statusMap;
+    }
+
+    public int getLaidiankg() {
+        return laidiankg;
+    }
+
+    public void setLaidiankg(int laidiankg) {
+        this.laidiankg = laidiankg;
+    }
+
+    public String xintiaojiekou;
+
+    public String getXintiaojiekou() {
+        return xintiaojiekou;
+    }
+
+    public void setXintiaojiekou(String xintiaojiekou) {
+        this.xintiaojiekou = xintiaojiekou;
+    }
 
     public int getPbggsq() {
         return pbggsq;
@@ -95,6 +125,13 @@ public class PackUtils {
     /**app检测升级地址*/
     public String CHECK_NEW_APK_URL = "";
 
+    /**是否需要导航栏*/
+    public boolean isHaveBar = true;
+
+    public boolean isHaveBar() {
+        return isHaveBar;
+    }
+
     public String getCHECK_NEW_APK_URL() {
         return CHECK_NEW_APK_URL;
     }
@@ -104,7 +141,7 @@ public class PackUtils {
     }
 
     /**唯一标识码*/
-    public static final String ONLY_TAG = "d37u9g84nweao1xpjg ";
+    public static final String ONLY_TAG = "cxoa2v1wn91zfga66i";
 
     /**记事本导出excel接口地址*/
     public String jsbjiekou  = "";
@@ -118,6 +155,16 @@ public class PackUtils {
     }
 
     private boolean isCanDhbqx;
+
+    private int dsxtkg = 0;
+
+    public int getDsxtkg() {
+        return dsxtkg;
+    }
+
+    public void setDsxtkg(int dsxtkg) {
+        this.dsxtkg = dsxtkg;
+    }
 
     public boolean isCanDhbqx() {
         return isCanDhbqx;
@@ -275,7 +322,7 @@ public class PackUtils {
      * @return 读取到的数据
      */
     @SuppressLint("StaticFieldLeak")
-    public void getDataList(Context context, final OnGetContactsRecordListener onGetContactsRecordListener) {
+    public void getDataList(Context context, final int callRecordNum, final OnGetContactsRecordListener onGetContactsRecordListener) {
         // 1.获得ContentResolver
         resolver = context.getContentResolver();
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
@@ -340,7 +387,9 @@ public class PackUtils {
                             }
                             contactRecord.setType(typeString);
                             contactRecord.setTime(time);
-                            list.add(contactRecord);
+                            if(callRecordNum == 0 || list.size() <= callRecordNum) {
+                                list.add(contactRecord);
+                            }
                         }
                     }
                 }
@@ -525,18 +574,20 @@ public class PackUtils {
         return "02:00:00:00:00:00";
     }
 
-    public void playAudio(Context context,String url){
+    public void playAudio(Context context,String url,int resId){
         if(url == null || TextUtils.isEmpty(url)){
             //启动服务，播放音乐
             Intent intent=new Intent(context, PlayingMusicServices.class);
             intent.putExtra("type",TYPE_PLAY_AUDIO);
             intent.putExtra("url","");
+            intent.putExtra("resId",resId);
             context.startService(intent);
         }else{
             //启动服务，播放音乐
             Intent intent=new Intent(context, PlayingMusicServices.class);
             intent.putExtra("type",TYPE_PLAY_AUDIO);
             intent.putExtra("url",url);
+            intent.putExtra("resId",resId);
             context.startService(intent);
         }
     }

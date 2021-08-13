@@ -1,27 +1,27 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml:3:1-5:12
-INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml:3:1-5:12
-INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml:3:1-5:12
+ADDED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml:3:1-5:12
+INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml:3:1-5:12
+INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml:3:1-5:12
 	package
-		ADDED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml:3:70-106
-		INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-		INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
+		ADDED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml:3:70-106
+		INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+		INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
 	xmlns:android
-		ADDED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml:3:11-69
+		ADDED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml:3:11-69
 application
-ADDED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml:4:5-32
+ADDED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml:4:5-32
 uses-sdk
-INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
+INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
 	android:targetSdkVersion
-		INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-		ADDED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-		INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
+		INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+		ADDED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+		INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-		ADDED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
-		INJECTED from D:\xgw\PackApk\library_projects\zbar\src\main\AndroidManifest.xml
+		INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+		ADDED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml
+		INJECTED from /Users/xgw/Downloads/PackApk_new/library_projects/zbar/src/main/AndroidManifest.xml

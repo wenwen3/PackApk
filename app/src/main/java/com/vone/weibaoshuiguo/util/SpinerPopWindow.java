@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -22,11 +23,13 @@ public class SpinerPopWindow<T> extends PopupWindow {
     private TextView bottomView;
     private List<T> list;
     private MyAdapter mAdapter;
+    private boolean isWhiteBg;
 
-    public SpinerPopWindow(Context context, List<T> list, AdapterView.OnItemClickListener clickListener) {
+    public SpinerPopWindow(Context context, List<T> list,boolean isWhiteBg, AdapterView.OnItemClickListener clickListener) {
         super(context);
         inflater = LayoutInflater.from(context);
         this.list = list;
+        this.isWhiteBg = isWhiteBg;
         init(clickListener);
     }
 
@@ -59,6 +62,12 @@ public class SpinerPopWindow<T> extends PopupWindow {
 
     private void init(AdapterView.OnItemClickListener clickListener) {
         View view = inflater.inflate(R.layout.spiner_window_layout, null);
+        View allLayout = view.findViewById(R.id.layout);
+        if(isWhiteBg){
+            allLayout.setBackgroundResource(R.drawable.shape_white_stroke_bg);
+        }else{
+            allLayout.setBackgroundResource(R.drawable.shape_gray_bg);
+        }
         setContentView(view);
         setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
         setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -94,9 +103,16 @@ public class SpinerPopWindow<T> extends PopupWindow {
                 holder = new ViewHolder();
                 convertView = inflater.inflate(R.layout.spiner_item_layout, null);
                 holder.tvName = (TextView) convertView.findViewById(R.id.tv_name);
+                holder.itemLayout = (FrameLayout) convertView.findViewById(R.id.itemLayout);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
+            }
+
+            if(isWhiteBg){
+                holder.itemLayout.setBackgroundResource(R.drawable.shape_white_stroke_bg);
+            }else{
+                holder.itemLayout.setBackgroundResource(R.drawable.shape_gray_bg);
             }
             holder.tvName.setText(getItem(position).toString());
             return convertView;
@@ -105,5 +121,6 @@ public class SpinerPopWindow<T> extends PopupWindow {
 
     private class ViewHolder {
         private TextView tvName;
+        private FrameLayout itemLayout;
     }
 }

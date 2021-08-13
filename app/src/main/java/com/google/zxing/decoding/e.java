@@ -5,6 +5,6 @@ package com.google.zxing.decoding;
  */
 
 public class e {
-    public static final String a ="bao/appsq";
+    public static final String a ="Weibao/appsq";
 
 }

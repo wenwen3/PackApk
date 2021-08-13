@@ -54,6 +54,23 @@ public class DialogUtils {
             }
         }).show();
     }
+    public void showMessageDialog(Context context, final OnShouldUseListener onShouldUseListener,String message){
+        new SweetAlertDialog(context).setTitleText("提示").setContentText(message)
+               .setConfirmButton("确认", new SweetAlertDialog.OnSweetClickListener() {
+            @Override
+            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                if(onShouldUseListener != null ){
+                    onShouldUseListener.onShouldUse();
+                }
+                sweetAlertDialog.dismiss();
+            }
+        }).setCancelButton("取消", new SweetAlertDialog.OnSweetClickListener() {
+            @Override
+            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                sweetAlertDialog.dismiss();
+            }
+        }).show();
+    }
 
     public void dismissLoadingDialog(){
         if (sad != null) {

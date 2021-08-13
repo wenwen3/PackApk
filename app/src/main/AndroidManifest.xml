@@ -18,34 +18,52 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-
+    <!-- 挂断手机的权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
 
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"></uses-permission>
-
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true"
         tools:replace="android:icon"
         android:name="com.vone.weibaoshuiguo.WbApplication"
         android:theme="@style/AppTheme">
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
         <activity android:name="com.vone.weibaoshuiguo.MainActivity">
 
         </activity>
+
+        <!-- 微信分享回调 -->
 
         <activity
             android:name="com.google.zxing.activity.CaptureActivity"/>
 
         <activity
             android:name="com.vone.weibaoshuiguo.WebViewActivity"
-            android:screenOrientation="portrait"/>
+            android:hardwareAccelerated="true"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
 
         <activity
             android:name="com.vone.weibaoshuiguo.HomeActivity"
-            android:screenOrientation="portrait">
-
+            android:hardwareAccelerated="true"
+            android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
         <activity
             android:name="com.vone.weibaoshuiguo.SplashActivity"
@@ -55,11 +73,12 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
         <receiver android:name="com.vone.weibaoshuiguo.receiver.PhoneReceiver">
 
-            <intent-filter>
+            <intent-filter android:priority="1000" >
 
                 <action android:name="android.intent.action.PHONE_STATE"/>
 
@@ -81,7 +100,7 @@
             android:screenOrientation="portrait"/>
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.vone.packApk.benchi"
+            android:authorities="com.vone.packApk.meilijiayuan"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -109,10 +128,11 @@
             </intent-filter>
         </receiver>
         <activity android:name="io.github.xudaojie.qrcodelib.CaptureActivity"/>
-
+        <!-- 微信分享回调 -->
         <service android:name="com.vone.weibaoshuiguo.service.PlayingMusicServices"
             android:exported="true"
             android:enabled="true"/>
+        <service android:name="com.vone.weibaoshuiguo.service.HeartService"/>
 
     </application>
 

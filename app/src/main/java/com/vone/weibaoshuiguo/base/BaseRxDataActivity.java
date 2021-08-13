@@ -24,6 +24,7 @@ public abstract class BaseRxDataActivity extends AppCompatActivity {
     private LinearLayout rightLeftLayout;
     private LinearLayout left2Layout;
     private LinearLayout left3Layout;
+    private LinearLayout shareLayout;
     private LinearLayout actionBar;
     private TextView titleTextView;
     private View backLayout;
@@ -55,6 +56,7 @@ public abstract class BaseRxDataActivity extends AppCompatActivity {
         rightLeftLayout = (LinearLayout) findViewById(R.id.rightLeftLayout);
         left2Layout = (LinearLayout) findViewById(R.id.left2Layout);
         left3Layout = (LinearLayout) findViewById(R.id.left3Layout);
+        shareLayout = (LinearLayout) findViewById(R.id.shareLayout);
         rightLeftImage = (ImageView) findViewById(R.id.rightLeftImage);
         backLayout =  findViewById(R.id.backLayout);
         statusBar = findViewById(R.id.statusBar);
@@ -71,21 +73,25 @@ public abstract class BaseRxDataActivity extends AppCompatActivity {
         titleTextView = (TextView) findViewById(R.id.title);
 
         if(hasToolbar()){
-            if(getBarTitle() != null && !TextUtils.isEmpty(getBarTitle())){
-                titleTextView.setText(getBarTitle());
-            }
-            actionBar.setVisibility(View.VISIBLE);
-            backLayout.setVisibility(View.VISIBLE);
-            backLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(canGoActivityBack()) {
-                        onBackPressed();
-                    }else{
-                        goBack();
-                    }
+            if(PackUtils.getInstance().isHaveBar()) {
+                if (getBarTitle() != null && !TextUtils.isEmpty(getBarTitle())) {
+                    titleTextView.setText(getBarTitle());
                 }
-            });
+                actionBar.setVisibility(View.VISIBLE);
+                backLayout.setVisibility(View.VISIBLE);
+                backLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (canGoActivityBack()) {
+                            onBackPressed();
+                        } else {
+                            goBack();
+                        }
+                    }
+                });
+            }else{
+                actionBar.setVisibility(View.GONE);
+            }
         }else{
             actionBar.setVisibility(View.GONE);
         }
@@ -100,6 +106,16 @@ public abstract class BaseRxDataActivity extends AppCompatActivity {
             });
         }else{
             rightLayout.setVisibility(View.INVISIBLE);
+        }
+        shareLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickShareLayout();
+            }
+        });
+        if(hasShareLayout()){
+            shareLayout.setVisibility(View.VISIBLE);
+
         }
 
         if(hasLeft2Logo()){
@@ -152,6 +168,14 @@ public abstract class BaseRxDataActivity extends AppCompatActivity {
         onActivityPrepared();
     }
 
+    protected void onClickShareLayout() {
+
+    }
+
+    protected boolean hasShareLayout(){
+        return false;
+    }
+
     protected boolean hasEdit(){
         return false;
     }
@@ -159,6 +183,52 @@ public abstract class BaseRxDataActivity extends AppCompatActivity {
     protected void showBackLogo(){
         if(hasToolbar() && backLayout != null ) {
             backLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected void hideActionBar(){
+        if(actionBar != null ){
+            actionBar.setVisibility(View.GONE);
+        }
+    }
+
+    protected void showActionBar(){
+        if(actionBar != null ){
+            actionBar.setVisibility(View.VISIBLE);
+        }
+    }
+  protected void hideShareLayout(){
+        if(shareLayout != null ){
+            shareLayout.setVisibility(View.GONE);
+        }
+    }
+
+    protected void showShareLayout(){
+        if(shareLayout != null ){
+            shareLayout.setVisibility(View.VISIBLE);
+        }
+    }
+  protected void hideRightLayout(){
+        if(rightLayout != null ){
+            rightLayout.setVisibility(View.GONE);
+        }
+    }
+
+    protected void showRightLayout(){
+        if(rightLayout != null ){
+            rightLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected void hideLeft3Layout(){
+        if(left3Layout != null ){
+            left3Layout.setVisibility(View.GONE);
+        }
+    }
+
+    protected void showLeft3Layout(){
+        if(left3Layout != null ){
+            left3Layout.setVisibility(View.VISIBLE);
         }
     }
 
